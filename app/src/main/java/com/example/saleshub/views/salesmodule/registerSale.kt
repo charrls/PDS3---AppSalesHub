@@ -1,4 +1,4 @@
-package com.example.saleshub.ui.theme.salesmodule
+package com.example.saleshub.views.salesmodule
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,6 +38,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -59,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
+import com.example.saleshub.model.Screen
 
 @Composable
 fun registerSaleScreen(navController: NavController, modifier: Modifier = Modifier) {
@@ -75,7 +77,7 @@ fun registerSaleScreen(navController: NavController, modifier: Modifier = Modifi
             salesIcon()
 
             selectProduct()
-            clientSale()
+            clientSale(navController)
             viewProducts()
             Spacer(modifier = Modifier.height(16.dp))
             SalesButtons()
@@ -166,7 +168,7 @@ fun selectProduct(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .padding(8.dp)
                         .border(0.2.dp, color = Color.Gray, RoundedCornerShape(8.dp))
-                        .clickable {  },
+                        .clickable { },
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons))
 
@@ -189,7 +191,7 @@ fun selectProduct(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .padding(8.dp)
                         .border(0.2.dp, color = Color.Gray, RoundedCornerShape(8.dp))
-                        .clickable {  },
+                        .clickable { },
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons))
                 ) {
@@ -219,7 +221,9 @@ fun selectProduct(modifier: Modifier = Modifier) {
             ){
                 Icon(Icons.Default.Delete,
                     contentDescription = "Eliminar",
-                    modifier = Modifier.size(23.dp))
+                    modifier = Modifier.size(23.dp),
+                    tint = Color.White
+                    )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -235,7 +239,9 @@ fun selectProduct(modifier: Modifier = Modifier) {
             ){
                     Icon(Icons.Default.AddCircle,
                         contentDescription = "Agregar",
-                        modifier = Modifier.size(24.dp))
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.White
+                    )
             }
 
 
@@ -243,18 +249,14 @@ fun selectProduct(modifier: Modifier = Modifier) {
         
     }
 }
-
-
-
 @Composable
-fun clientSale(modifier: Modifier = Modifier) {
-    val clientes = listOf("Cliente 1", "Cliente 2", "Cliente 3", "Cliente 4", "Cliente 5", "Cliente 6")
+fun clientSale(navController: NavController, modifier: Modifier = Modifier) {
+    val clientes = listOf("Registrar nuevo cliente", "Cliente 1", "Cliente 2", "Cliente 3", "Cliente 4", "Cliente 5", "Cliente 6")
     var isChecked by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     var selectedClient by remember { mutableStateOf("Seleccionar cliente") }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-
+    Column(modifier = modifier.fillMaxWidth()) {
         Divider(
             color = Color.LightGray,
             modifier = Modifier
@@ -263,14 +265,12 @@ fun clientSale(modifier: Modifier = Modifier) {
         )
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Row(
-                modifier = Modifier
-                    .padding(12.dp),
+                modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Fiado")
@@ -297,18 +297,29 @@ fun clientSale(modifier: Modifier = Modifier) {
                     Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Desplegar")
                 }
                 DropdownMenu(
+                    modifier = Modifier.background(Color.White),
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
                     clientes.forEach { cliente ->
                         DropdownMenuItem(
-                            text = {Text(cliente)},
+                            modifier = Modifier.background(Color.White),
+                            text = {
+                                Text(
+                                    text = cliente,
+                                    fontSize = 14.sp, // Tamaño de fuente personalizado
+                                    color = Color.DarkGray, // Color del texto
+                                    modifier = Modifier.padding(8.dp) // Padding interno
+                                )
+                            },
                             onClick = {
                                 selectedClient = cliente
                                 expanded = false
-                            }
+                                if (cliente == "Registrar nuevo cliente") {
+                                    navController.navigate(Screen.RegisterClient.route)
+                                }
+                            },
                         )
-
                     }
                 }
             }
@@ -322,6 +333,8 @@ fun clientSale(modifier: Modifier = Modifier) {
         )
     }
 }
+
+
 
 
 @Composable

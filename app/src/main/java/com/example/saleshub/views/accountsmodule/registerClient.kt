@@ -1,6 +1,5 @@
-package com.example.saleshub.ui.theme.accountsmodule
+package com.example.saleshub.views.accountsmodule
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,28 +13,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,9 +42,9 @@ import com.example.saleshub.R
 
 
 
-
 @Composable
-fun DeptPaymentScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun RegisterClientScreen(navController: NavController, modifier: Modifier = Modifier) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,25 +54,17 @@ fun DeptPaymentScreen(navController: NavController, modifier: Modifier = Modifie
     ) {
 
         Column (horizontalAlignment = Alignment.CenterHorizontally) {
-            HeaderPaymentClient(navController, Modifier.fillMaxWidth())
-            iconDPayment()
-            Column (modifier = Modifier
-                .height(220.dp))
-            {
-                ViewClients(modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp))
-            }
-            ClientDetails()
-            PaymentForm()
+            HeaderRegisterClient(navController, Modifier.fillMaxWidth())
+            iconAInventory()
+            RegisterClientForm()
         }
-        FootDPaymentBottons()
+        FootRClientBottons()
     }
 }
 
 
 @Composable
-fun HeaderPaymentClient(navController: NavController, modifier: Modifier = Modifier) {
+fun HeaderRegisterClient(navController: NavController, modifier: Modifier = Modifier) {
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -99,7 +88,7 @@ fun HeaderPaymentClient(navController: NavController, modifier: Modifier = Modif
             )
         }
         Text(
-            text = "Pago de deuda",
+            text = "Registrar cliente",
             fontSize = 20.sp,
             color = Color.DarkGray,
             modifier = Modifier.padding(end = 16.dp)
@@ -109,7 +98,7 @@ fun HeaderPaymentClient(navController: NavController, modifier: Modifier = Modif
 }
 
 @Composable
-fun iconDPayment(modifier: Modifier = Modifier) {
+fun iconAInventory(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -139,104 +128,44 @@ fun iconDPayment(modifier: Modifier = Modifier) {
         }
     }
 }
-@Composable
-fun ViewClients(modifier: Modifier = Modifier) {
-
-    LazyColumn(
-
-        modifier = modifier
-            .padding(horizontal = 18.dp)
-            .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
-            .padding(16.dp)
-
-    ) {
-        items(10) { index ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                border = BorderStroke(0.5.dp, Color.LightGray),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Nombre: cliente", fontWeight = FontWeight.Normal)
-                }
-            }
-        }
-    }
-}
-
 
 @Composable
-fun ClientDetails(modifier: Modifier = Modifier) {
-    Column (
-        modifier = modifier.padding(horizontal = 40.dp, vertical = 20.dp)
-
-    ) {
-        Divider(
-            color = Color.LightGray,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-        )
-        Spacer(modifier = modifier.height(30.dp))
-        Row (modifier = modifier
-            .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround)
-        {
-            Text(text = "Cliente: Nombre")
-            Text(text = "Telefono: 662-0000000")
-
-        }
-        Spacer(modifier = modifier.height(30.dp))
-        Column (modifier = modifier
-            .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-           )
-        {
-            Text(text = "Deuda: $0.0",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                )
-
-        }
-        Spacer(modifier = modifier.height(30.dp))
-        Divider(
-            color = Color.LightGray,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-        )
-    }
-}
-
-
-@Composable
-fun PaymentForm(modifier: Modifier = Modifier) {
+fun RegisterClientForm(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 18.dp)
-            .padding(horizontal = 40.dp),
-        horizontalAlignment = Alignment.Start
+        modifier = modifier.padding(horizontal = 40.dp, vertical = 40.dp)
     ) {
-        Text(text = "Pago/abono")
+        Text(text = "Cliente")
         OutlinedTextField(
             value = "",
             onValueChange = {},
-            label = { Text("$0.0") },
-            modifier = Modifier.width(150.dp),
+            label = { Text("Nombre del cliente") },
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp)
 
+        )
+        Spacer(modifier = modifier.height(30.dp))
+        Text(text = "Telefono")
+        OutlinedTextField(
+            value = "",
+            onValueChange = {},
+            label = { Text("Numero de telefono")},
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            /*textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )*/
         )
 
     }
 }
 
 
+
+
 @Composable
-fun FootDPaymentBottons(modifier: Modifier = Modifier) {
+fun FootRClientBottons(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -273,8 +202,9 @@ fun FootDPaymentBottons(modifier: Modifier = Modifier) {
     }
 }
 
+
 @Preview
 @Composable
-private fun deptpraymentPrev() {
-    DeptPaymentScreen(rememberNavController())
+private fun registerclientPrec() {
+    RegisterClientScreen(rememberNavController())
 }

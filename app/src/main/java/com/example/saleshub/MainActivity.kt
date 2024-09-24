@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.ui.theme.SalesHubTheme
-import com.example.saleshub.ui.theme.home.MainNavGraph
+import com.example.saleshub.views.home.MainNavGraph
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

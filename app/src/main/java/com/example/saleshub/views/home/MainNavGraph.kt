@@ -1,4 +1,4 @@
-package com.example.saleshub.ui.theme.home
+package com.example.saleshub.views.home
 
 import DeleteInventoryScreen
 import EditProductScreen
@@ -9,15 +9,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.saleshub.model.Screen
-import com.example.saleshub.ui.theme.accountsmodule.AccountsModuleScreen
-import com.example.saleshub.ui.theme.accountsmodule.DeadlinesScreen
-import com.example.saleshub.ui.theme.accountsmodule.DeptPaymentScreen
-import com.example.saleshub.ui.theme.accountsmodule.RegisterClientScreen
-import com.example.saleshub.ui.theme.inventorymodule.RegisterProductScreen
-import com.example.saleshub.ui.theme.inventorymodule.ViewInventoryScreen
-import com.example.saleshub.ui.theme.salesmodule.SalesHistoryScreen
-import com.example.saleshub.ui.theme.salesmodule.SalesModuleScreen
-import com.example.saleshub.ui.theme.salesmodule.registerSaleScreen
+import com.example.saleshub.views.accountsmodule.AccountsModuleScreen
+import com.example.saleshub.views.accountsmodule.DeadlinesScreen
+import com.example.saleshub.views.accountsmodule.DeptPaymentScreen
+import com.example.saleshub.views.accountsmodule.RegisterClientScreen
+import com.example.saleshub.views.inventorymodule.RegisterProductScreen
+import com.example.saleshub.views.inventorymodule.ViewInventoryScreen
+import com.example.saleshub.views.salesmodule.SalesHistoryScreen
+import com.example.saleshub.views.salesmodule.SalesModuleScreen
+import com.example.saleshub.views.salesmodule.registerSaleScreen
 
 
 

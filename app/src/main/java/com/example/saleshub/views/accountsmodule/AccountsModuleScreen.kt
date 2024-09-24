@@ -1,4 +1,4 @@
-package com.example.saleshub.ui.theme.accountsmodule
+package com.example.saleshub.views.accountsmodule
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

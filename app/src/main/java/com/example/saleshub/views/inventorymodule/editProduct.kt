@@ -159,12 +159,20 @@ fun SelectEditProduct(modifier: Modifier = Modifier) {
                 Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Desplegar")
             }
             DropdownMenu(
+                modifier = Modifier.background(Color.White),
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
                 productList.forEach { product ->
                     DropdownMenuItem(
-                        text = { Text(product) },
+                        modifier = Modifier.background(Color.White),
+                        text = {
+                            Text(
+                                text = product,
+                                fontSize = 14.sp, // Tamaño de fuente personalizado
+                                color = Color.DarkGray, // Color del texto
+                                modifier = Modifier.padding(8.dp) // Padding interno
+                            ) },
                         onClick = {
                             selectedProduct = product
                             expanded = false

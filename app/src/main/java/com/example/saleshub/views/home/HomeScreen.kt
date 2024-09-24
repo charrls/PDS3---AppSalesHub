@@ -1,4 +1,4 @@
-package com.example.saleshub.ui.theme.home
+package com.example.saleshub.views.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -131,19 +131,19 @@ fun accesoRapido(navController: NavController, modifier: Modifier = Modifier) {
             CustomButton(
                 text = "Ver inventario",
                 onClick = {
-                    println("Ver inventario presionado")
+                    navController.navigate(Screen.ViewInventory.route)
                 }
             )
             CustomButton(
                 text = "Registrar ventas",
                 onClick = {
-                    println("Registrar ventas presionado")
+                    navController.navigate(Screen.RegisterSale.route)
                 }
             )
             CustomButton(
                 text = "Pago de deuda",
                 onClick = {
-                    println("Pago de deuda presionado")
+                    navController.navigate(Screen.DeptPayment.route)
                 }
             )
         }

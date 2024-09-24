@@ -1,4 +1,4 @@
-package com.example.saleshub.ui.theme.salesmodule
+package com.example.saleshub.views.salesmodule
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -151,7 +151,7 @@ fun HistoryButtons(navController: NavController, modifier: Modifier = Modifier) 
             verticalAlignment = Alignment.CenterVertically
         ){
             Button(
-                onClick = { navController.navigate(Screen.RegisterSale.route) },
+                onClick = {  },
                 modifier = Modifier
                     .border(0.5.dp, Color.LightGray, RoundedCornerShape(12.dp))
                     .height(40.dp),

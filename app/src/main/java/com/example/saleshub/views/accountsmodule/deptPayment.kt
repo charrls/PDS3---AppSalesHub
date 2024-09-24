@@ -1,13 +1,11 @@
-package com.example.saleshub.ui.theme.inventorymodule
+package com.example.saleshub.views.accountsmodule
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,34 +14,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,13 +42,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
-import java.time.format.TextStyle
+
+
 
 
 @Composable
-fun RegisterProductScreen(navController: NavController, modifier: Modifier = Modifier) {
-    var productType by remember { mutableStateOf("Alimento") }
-
+fun DeptPaymentScreen(navController: NavController, modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -67,23 +57,25 @@ fun RegisterProductScreen(navController: NavController, modifier: Modifier = Mod
     ) {
 
         Column (horizontalAlignment = Alignment.CenterHorizontally) {
-            HeaderRegisterInventory(navController, Modifier.fillMaxWidth())
-            iconRInventory()
-            SelectTypeProduct { selectedType ->
-                productType = selectedType
+            HeaderPaymentClient(navController, Modifier.fillMaxWidth())
+            iconDPayment()
+            Column (modifier = Modifier
+                .height(220.dp))
+            {
+                ViewClients(modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp))
             }
-            ProductForm(productType = productType)
+            ClientDetails()
+            PaymentForm()
         }
-        FootRegisterButtons()
+        FootDPaymentBottons()
     }
 }
 
 
-
-
-
 @Composable
-fun HeaderRegisterInventory(navController: NavController, modifier: Modifier = Modifier) {
+fun HeaderPaymentClient(navController: NavController, modifier: Modifier = Modifier) {
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -107,7 +99,7 @@ fun HeaderRegisterInventory(navController: NavController, modifier: Modifier = M
             )
         }
         Text(
-            text = "Registrar producto",
+            text = "Pago de deuda",
             fontSize = 20.sp,
             color = Color.DarkGray,
             modifier = Modifier.padding(end = 16.dp)
@@ -117,7 +109,7 @@ fun HeaderRegisterInventory(navController: NavController, modifier: Modifier = M
 }
 
 @Composable
-fun iconRInventory(modifier: Modifier = Modifier) {
+fun iconDPayment(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -130,7 +122,7 @@ fun iconRInventory(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Start)
         {
             Image(
-                painter = painterResource(id = R.drawable.inventario),
+                painter = painterResource(id = R.drawable.cuentas),
                 contentDescription = null,
                 modifier = Modifier
                     .size(35.dp)
@@ -147,106 +139,104 @@ fun iconRInventory(modifier: Modifier = Modifier) {
         }
     }
 }
+@Composable
+fun ViewClients(modifier: Modifier = Modifier) {
+
+    LazyColumn(
+
+        modifier = modifier
+            .padding(horizontal = 18.dp)
+            .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+            .padding(16.dp)
+
+    ) {
+        items(10) { index ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                border = BorderStroke(0.5.dp, Color.LightGray),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Nombre: cliente", fontWeight = FontWeight.Normal)
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
-fun SelectTypeProduct(modifier: Modifier = Modifier, onTypeSelected: (String) -> Unit) {
-    val productList = listOf("Alimento", "Adicional")
-    var expanded by remember { mutableStateOf(false) }
-    var selectedProduct by remember { mutableStateOf(productList[0]) }
+fun ClientDetails(modifier: Modifier = Modifier) {
+    Column (
+        modifier = modifier.padding(horizontal = 40.dp, vertical = 20.dp)
 
+    ) {
+        Divider(
+            color = Color.LightGray,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(3.dp)
+        )
+        Spacer(modifier = modifier.height(30.dp))
+        Row (modifier = modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround)
+        {
+            Text(text = "Cliente: Nombre")
+            Text(text = "Telefono: 662-0000000")
+
+        }
+        Spacer(modifier = modifier.height(30.dp))
+        Column (modifier = modifier
+            .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+           )
+        {
+            Text(text = "Deuda: $0.0",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                )
+
+        }
+        Spacer(modifier = modifier.height(30.dp))
+        Divider(
+            color = Color.LightGray,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(3.dp)
+        )
+    }
+}
+
+
+@Composable
+fun PaymentForm(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = 18.dp)
-            .padding(horizontal = 30.dp)
+            .padding(horizontal = 40.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        Box {
-            OutlinedButton(onClick = { expanded = !expanded }) {
-                Text(
-                    selectedProduct,
-                    fontSize = 16.sp,
-                    color = Color.DarkGray,
-                    modifier = Modifier.padding(end = 12.dp)
-                )
-                Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Desplegar")
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                productList.forEach { product ->
-                    DropdownMenuItem(
-                        text = { Text(product) },
-                        onClick = {
-                            selectedProduct = product
-                            expanded = false
-                            onTypeSelected(product)
-                        }
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(26.dp))
-    }
-}
-
-
-@Composable
-fun ProductForm(productType: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.padding(horizontal = 40.dp)
-    ) {
-        Text(text = "Producto")
+        Text(text = "Pago/abono")
         OutlinedTextField(
             value = "",
             onValueChange = {},
-            label = { Text("Nombre del producto") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
-
-            )
-        Spacer(modifier = modifier.height(25.dp))
-        Text(text = "Descripción")
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            label = { Text("Descripción del producto")},
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            /*textStyle = androidx.compose.ui.text.TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )*/
-        )
-        Spacer(modifier = modifier.height(25.dp))
-        Text(text = "Precio")
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            label = { Text("$ 0.0") },
+            label = { Text("$0.0") },
             modifier = Modifier.width(150.dp),
             shape = RoundedCornerShape(8.dp)
+
         )
-        Spacer(modifier = modifier.height(25.dp))
-        if (productType == "Adicional") {
-            Text(text = "Stock")
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text("Stock mínimo") },
-                modifier = Modifier.width(150.dp),
-                shape = RoundedCornerShape(8.dp)
-            )
-        }
 
     }
 }
 
 
-
 @Composable
-fun FootRegisterButtons(modifier: Modifier = Modifier) {
+fun FootDPaymentBottons(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -254,7 +244,6 @@ fun FootRegisterButtons(modifier: Modifier = Modifier) {
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-
         Button(
             onClick = {  },
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.grayButton)),
@@ -271,7 +260,7 @@ fun FootRegisterButtons(modifier: Modifier = Modifier) {
         Spacer(modifier = modifier.width(40.dp))
         Button(
             onClick = {  },
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.orangeButton)),
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.purpleButton)),
             modifier = Modifier
                 .height(55.dp)
                 .weight(1f)
@@ -284,10 +273,8 @@ fun FootRegisterButtons(modifier: Modifier = Modifier) {
     }
 }
 
-
-
-
-
-
-
-
+@Preview
+@Composable
+private fun deptpraymentPrev() {
+    DeptPaymentScreen(rememberNavController())
+}
