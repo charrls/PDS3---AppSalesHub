@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -166,7 +167,10 @@ fun SelectProduct(modifier: Modifier = Modifier) {
                     color = Color.DarkGray,
                     modifier = Modifier.padding(end = 12.dp)
                 )
-                Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Desplegar")
+                Icon(imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = "Desplegar",
+                    tint = Color.DarkGray
+                )
             }
             DropdownMenu(
                 modifier = Modifier.background(Color.White),
@@ -198,7 +202,7 @@ fun SelectProduct(modifier: Modifier = Modifier) {
 
 @Composable
 fun AddStockButton(modifier: Modifier = Modifier) {
-    var stockCount by remember { mutableStateOf(10) }
+    var stockCount by remember { mutableStateOf(0) }
 
     Column(
         modifier = modifier
@@ -211,8 +215,7 @@ fun AddStockButton(modifier: Modifier = Modifier) {
             )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .border(0.5.dp, Color.Gray, RoundedCornerShape(6.dp))
+
 
         ) {
             OutlinedTextField(
@@ -298,15 +301,13 @@ fun ProductDetailsCard(productName: String, modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text("Producto: $productName")
-            Text("Descripción: Descripción breve")
-            Text("Stock mínimo: $minimumStock")
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Stock: $stock", color = if (stock < minimumStock) Color.Red else Color.Green)
+                Text("Producto: $productName")
                 if (stock < minimumStock) {
                     Icon(
                         imageVector = Icons.Default.Warning,
@@ -315,9 +316,37 @@ fun ProductDetailsCard(productName: String, modifier: Modifier = Modifier) {
                     )
                 }
             }
+
+                Text("Descripción: Descripción breve")
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Stock mínimo: $minimumStock")
+
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Text("Stock: ",
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text("$stock",
+                            color = if (stock < minimumStock) Color.Red else Color.Green,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                    }
+
+
+                }
+            }
         }
     }
-}
 
 
 

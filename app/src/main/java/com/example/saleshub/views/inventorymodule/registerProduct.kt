@@ -168,7 +168,10 @@ fun SelectTypeProduct(modifier: Modifier = Modifier, onTypeSelected: (String) ->
                     color = Color.DarkGray,
                     modifier = Modifier.padding(end = 12.dp)
                 )
-                Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Desplegar")
+                Icon(imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = "Desplegar",
+                    tint = Color.DarkGray
+                )
             }
             DropdownMenu(
                 modifier = Modifier.background(Color.White),

@@ -16,35 +16,32 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,7 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
-import com.example.saleshub.model.Screen
+import com.example.saleshub.models.Screen
 
 @Composable
 fun registerSaleScreen(navController: NavController, modifier: Modifier = Modifier) {
@@ -170,14 +167,21 @@ fun selectProduct(modifier: Modifier = Modifier) {
                         .border(0.2.dp, color = Color.Gray, RoundedCornerShape(8.dp))
                         .clickable { },
                     shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons))
+                    colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons)),
+
 
                 ) {
-                    Text(
+                    Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(align = Alignment.Center)
+                ){
+                        Text(
                         text = productos[index],
                         modifier = Modifier.padding(16.dp),
                         color = Color.DarkGray
-                    )
+                    )}
+
                 }
             }
         }
@@ -276,7 +280,12 @@ fun clientSale(navController: NavController, modifier: Modifier = Modifier) {
                 Text("Fiado")
                 Checkbox(
                     checked = isChecked,
-                    onCheckedChange = { isChecked = it }
+                    onCheckedChange = { isChecked = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color.DarkGray,
+                        uncheckedColor = Color.DarkGray,
+                        checkmarkColor = Color.White
+                    )
                 )
             }
 
@@ -294,7 +303,10 @@ fun clientSale(navController: NavController, modifier: Modifier = Modifier) {
                         color = Color.DarkGray,
                         modifier = Modifier.padding(end = 12.dp)
                     )
-                    Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Desplegar")
+                    Icon(imageVector = Icons.Filled.ArrowDropDown,
+                        contentDescription = "Desplegar",
+                        tint = Color.DarkGray
+                    )
                 }
                 DropdownMenu(
                     modifier = Modifier.background(Color.White),

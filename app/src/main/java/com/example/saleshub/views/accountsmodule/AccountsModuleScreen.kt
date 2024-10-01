@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
-import com.example.saleshub.model.Screen
+import com.example.saleshub.models.Screen
 
 @Composable
 fun AccountsModuleScreen(navController: NavController) {

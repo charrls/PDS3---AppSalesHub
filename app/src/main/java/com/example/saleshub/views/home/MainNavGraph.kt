@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.saleshub.model.Screen
+import com.example.saleshub.models.Screen
 import com.example.saleshub.views.accountsmodule.AccountsModuleScreen
 import com.example.saleshub.views.accountsmodule.DeadlinesScreen
 import com.example.saleshub.views.accountsmodule.DeptPaymentScreen

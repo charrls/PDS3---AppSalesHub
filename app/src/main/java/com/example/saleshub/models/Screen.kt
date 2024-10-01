@@ -1,4 +1,4 @@
-package com.example.saleshub.model
+package com.example.saleshub.models
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -20,11 +20,5 @@ sealed class Screen(val route: String) {
     object RegisterProduct : Screen("register_product")
     object UpdateStock : Screen("update_stock")
     object ViewInventory : Screen("view_inventory")
-
-
-
-
-
-
 
 }
