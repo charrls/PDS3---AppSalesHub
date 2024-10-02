@@ -1,6 +1,7 @@
 package com.example.saleshub
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,9 +12,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
+import com.example.saleshub.data.ProductDatabase
+import com.example.saleshub.repository.ProductRepository
 import com.example.saleshub.ui.theme.SalesHubTheme
+import com.example.saleshub.viewmodel.ProductViewModel
+import com.example.saleshub.viewmodel.ProductViewModelFactory
 import com.example.saleshub.views.home.MainNavGraph
 
 class MainActivity : ComponentActivity() {
@@ -22,9 +27,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SalesHubTheme {
-                    val navController = rememberNavController()
-                    MainNavGraph(navController)
-                }
+                val navController = rememberNavController()
+// Dentro de MainActivity
+                val productDao = ProductDatabase.getDatabase(applicationContext).productDao()
+                Log.d("MainActivity", "ProductDao initialized: $productDao")
+                val repository = ProductRepository(productDao)
+                val productViewModel: ProductViewModel = ViewModelProvider(
+                    this,
+                    ProductViewModelFactory(repository)
+                ).get(ProductViewModel::class.java)
+                Log.d("MainActivity", "ProductViewModel initialized: $productViewModel")
+
+                // Pasar el ViewModel al gráfico de navegación
+                MainNavGraph(navController, productViewModel)
+            }
         }
     }
 }

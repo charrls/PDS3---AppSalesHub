@@ -1,4 +1,4 @@
-package com.example.saleshub.models
+package com.example.saleshub.model
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")

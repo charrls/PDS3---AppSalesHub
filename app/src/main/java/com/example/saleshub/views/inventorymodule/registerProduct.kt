@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,6 +32,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -49,14 +51,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
+import com.example.saleshub.viewmodel.ProductViewModel
 import java.time.format.TextStyle
 
 
+
 @Composable
-fun RegisterProductScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun RegisterProductScreen(
+    navController: NavController,
+    productViewModel: ProductViewModel,
+    modifier: Modifier = Modifier
+) {
     var productType by remember { mutableStateOf("Alimento") }
+
+    // Estado para el cuadro de diálogo de éxito
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -65,22 +77,88 @@ fun RegisterProductScreen(navController: NavController, modifier: Modifier = Mod
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-
-        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             HeaderRegisterInventory(navController, Modifier.fillMaxWidth())
             iconRInventory()
-            SelectTypeProduct { selectedType -> 0
-                productType = selectedType
-            }
-            ProductForm(productType = productType)
+            SelectTypeProduct { selectedType -> productType = selectedType }
+            ProductForm(productType = productType, productViewModel = productViewModel)
         }
-        FootRegisterButtons()
+        FootRegisterButtons(
+            productViewModel = productViewModel,
+            productType = productType, // Pasar productType
+            onRegisterSuccess = { type ->
+                showSuccessDialog = true // Cambia esto a true para mostrar el diálogo
+            }
+        )
+    }
+
+    // Diálogo de éxito
+    if (showSuccessDialog) {
+        SuccessDialog(onDismiss = { showSuccessDialog = false }, productType = productType)
     }
 }
 
 
 
+@Composable
+fun ProductForm(productType: String, productViewModel: ProductViewModel, modifier: Modifier = Modifier) {
+    var productName by remember { mutableStateOf("") }
+    var productDescription by remember { mutableStateOf("") }
+    var productPrice by remember { mutableStateOf("") }
+    var productStock by remember { mutableStateOf("") }
 
+
+    Column(
+        modifier = modifier.padding(horizontal = 40.dp)
+    ) {
+        Text(text = "Producto")
+        OutlinedTextField(
+            value = productName,
+            onValueChange = { productName = it },
+            label = { Text("Nombre del producto") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+        )
+        Spacer(modifier = modifier.height(25.dp))
+        Text(text = "Descripción")
+        OutlinedTextField(
+            value = productDescription,
+            onValueChange = { productDescription = it },
+            label = { Text("Descripción del producto") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+        )
+        Spacer(modifier = modifier.height(25.dp))
+        Text(text = "Precio")
+        OutlinedTextField(
+            value = productPrice,
+            onValueChange = { productPrice = it },
+            label = { Text("$ 0.0") },
+            modifier = Modifier.width(150.dp),
+            shape = RoundedCornerShape(8.dp)
+        )
+        Spacer(modifier = modifier.height(25.dp))
+        if (productType == "Adicional") {
+            Text(text = "Stock")
+            OutlinedTextField(
+                value = productStock,
+                onValueChange = { productStock = it },
+                label = { Text("Stock mínimo") },
+                modifier = Modifier.width(150.dp),
+                shape = RoundedCornerShape(8.dp)
+            )
+        }
+
+        Spacer(modifier = modifier.height(25.dp))
+        // Guardamos los datos en el ViewModel cuando el formulario cambie
+        productViewModel.updateProductFields(
+            name = productName,
+            description = productDescription,
+            price = productPrice.toDoubleOrNull() ?: 0.0,
+            stock = if (productType == "Adicional") productStock.toIntOrNull() ?: 0 else null
+        )
+    }
+}
 
 @Composable
 fun HeaderRegisterInventory(navController: NavController, modifier: Modifier = Modifier) {
@@ -202,62 +280,15 @@ fun SelectTypeProduct(modifier: Modifier = Modifier, onTypeSelected: (String) ->
 }
 
 
-@Composable
-fun ProductForm(productType: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.padding(horizontal = 40.dp)
-    ) {
-        Text(text = "Producto")
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            label = { Text("Nombre del producto") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
-
-            )
-        Spacer(modifier = modifier.height(25.dp))
-        Text(text = "Descripción")
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            label = { Text("Descripción del producto")},
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            /*textStyle = androidx.compose.ui.text.TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )*/
-        )
-        Spacer(modifier = modifier.height(25.dp))
-        Text(text = "Precio")
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            label = { Text("$ 0.0") },
-            modifier = Modifier.width(150.dp),
-            shape = RoundedCornerShape(8.dp)
-        )
-        Spacer(modifier = modifier.height(25.dp))
-        if (productType == "Adicional") {
-            Text(text = "Stock")
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text("Stock mínimo") },
-                modifier = Modifier.width(150.dp),
-                shape = RoundedCornerShape(8.dp)
-            )
-        }
-
-    }
-}
-
 
 
 @Composable
-fun FootRegisterButtons(modifier: Modifier = Modifier) {
+fun FootRegisterButtons(
+    productViewModel: ProductViewModel,
+    productType: String, // Agregar este parámetro
+    onRegisterSuccess: (String) -> Unit, // Función para manejar el registro exitoso
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -265,9 +296,8 @@ fun FootRegisterButtons(modifier: Modifier = Modifier) {
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-
         Button(
-            onClick = {  },
+            onClick = { /* Navegar hacia atrás o limpiar campos */ },
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.grayButton)),
             modifier = Modifier
                 .height(55.dp)
@@ -281,7 +311,12 @@ fun FootRegisterButtons(modifier: Modifier = Modifier) {
 
         Spacer(modifier = modifier.width(40.dp))
         Button(
-            onClick = {  },
+            onClick = {
+                // Llamar a la función de registrar el producto en el ViewModel
+                productViewModel.registerProduct()
+                // Llama a la función de éxito con el tipo de producto
+                onRegisterSuccess(productType) // Enviar el tipo de producto
+            },
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.orangeButton)),
             modifier = Modifier
                 .height(55.dp)
@@ -296,11 +331,33 @@ fun FootRegisterButtons(modifier: Modifier = Modifier) {
 }
 
 
-@Preview
 @Composable
-private fun reguisterPrev() {
-    RegisterProductScreen(rememberNavController())
+fun SuccessDialog(onDismiss: () -> Unit, productType: String) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Registro Exitoso",
+                style = MaterialTheme.typography.titleLarge // Usar un estilo disponible
+            )
+        },
+        text = {
+            Text(
+                text = "El producto se registró con éxito como: $productType",
+                style = MaterialTheme.typography.bodyMedium // Usar un estilo disponible
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors() // Usar colores por defecto
+            ) {
+                Text("Aceptar")
+            }
+        }
+    )
 }
+
 
 
 

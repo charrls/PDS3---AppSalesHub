@@ -8,7 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.saleshub.models.Screen
+import com.example.saleshub.model.Screen
+import com.example.saleshub.viewmodel.ProductViewModel
 import com.example.saleshub.views.accountsmodule.AccountsModuleScreen
 import com.example.saleshub.views.accountsmodule.DeadlinesScreen
 import com.example.saleshub.views.accountsmodule.DeptPaymentScreen
@@ -22,7 +23,7 @@ import com.example.saleshub.views.salesmodule.registerSaleScreen
 
 
 @Composable
-fun MainNavGraph(navController: NavHostController) {
+fun MainNavGraph(navController: NavHostController, productViewModel: ProductViewModel) {
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -73,7 +74,7 @@ fun MainNavGraph(navController: NavHostController) {
             EditProductScreen(navController)
         }
         composable(Screen.RegisterProduct.route) {
-            RegisterProductScreen(navController)
+            RegisterProductScreen(navController, productViewModel)
         }
         composable(Screen.UpdateStock.route) {
             UpdateStockScreen(navController)
