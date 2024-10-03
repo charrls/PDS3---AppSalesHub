@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -71,7 +72,7 @@ fun encabezadoModuloInventario(navController: NavController, modifier: Modifier 
                 colorResource(id = R.color.light_gris),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .padding(16.dp)
+            .padding(top = 48.dp),
     ) {
         IconButton(
             onClick = { navController.popBackStack() },
@@ -129,7 +130,7 @@ fun contenidoModuloInventario(navController: NavController, modifier: Modifier =
             modifier = Modifier
                 .width(200.dp)
                 .height(60.dp)
-                .border(0.5.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                .shadow(3.dp, RoundedCornerShape(12.dp)),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.light_buttons))
         ) {
@@ -146,7 +147,7 @@ fun contenidoModuloInventario(navController: NavController, modifier: Modifier =
             modifier = Modifier
                 .width(200.dp)
                 .height(60.dp)
-                .border(0.5.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                .shadow(3.dp, RoundedCornerShape(12.dp)),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.light_buttons))
         ) {
@@ -163,7 +164,7 @@ fun contenidoModuloInventario(navController: NavController, modifier: Modifier =
             modifier = Modifier
                 .width(200.dp)
                 .height(60.dp)
-                .border(0.5.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                .shadow(3.dp, RoundedCornerShape(12.dp)),
             shape =
             RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.light_buttons))
@@ -180,7 +181,7 @@ fun contenidoModuloInventario(navController: NavController, modifier: Modifier =
             modifier = Modifier
                 .width(200.dp)
                 .height(60.dp)
-                .border(0.5.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                .shadow(3.dp, RoundedCornerShape(12.dp)),
             shape =
             RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.light_buttons))
@@ -197,7 +198,7 @@ fun contenidoModuloInventario(navController: NavController, modifier: Modifier =
             modifier = Modifier
                 .width(200.dp)
                 .height(60.dp)
-                .border(0.5.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                .shadow(3.dp, RoundedCornerShape(12.dp)),
             shape =
             RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.light_buttons))

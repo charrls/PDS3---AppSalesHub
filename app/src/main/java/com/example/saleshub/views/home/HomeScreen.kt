@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -69,16 +70,18 @@ fun Header(modifier: Modifier = Modifier) {
                 colorResource(id = R.color.light_gris),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .padding(top = 12.dp)
+            .padding(top = 48.dp),
 
 
     ){
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
                 .fillMaxWidth()
                 .background(Color.Transparent)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 8.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.store),
@@ -161,7 +164,7 @@ fun CustomButton(
         onClick = onClick,
         modifier = modifier
             .size(104.dp, 80.dp)
-            .border(0.5.dp, Color.LightGray, RoundedCornerShape(12.dp)),
+            .shadow(3.dp, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.light_buttons))
     ) {

@@ -12,6 +12,9 @@ interface ProductDao {
     @Insert
     suspend fun insertProduct(product: Product)
 
+    @Query("SELECT * FROM product_table")
+    fun getAllProducts(): Flow<List<Product>>
+
     @Query("SELECT * FROM product_table WHERE id = :id")
     fun getProductsById(id: String): Flow<List<Product>>
 

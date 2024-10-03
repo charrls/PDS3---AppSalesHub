@@ -10,6 +10,9 @@ class ProductRepository(private val productDao: ProductDao) {
         return productDao.getProductsById(id.toString())
     }
 
+    fun getAllProducts(): Flow<List<Product>> {
+        return productDao.getAllProducts() // Llamada al método de Dao
+    }
 
     suspend fun insertProduct(product: Product) {
         productDao.insertProduct(product)

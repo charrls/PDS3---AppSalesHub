@@ -10,5 +10,6 @@ data class Product(
     val description: String,
     val price: Double,
     val stock: Int? = null,
-
+    val stockmin: Int,
+    val type: String
 )

@@ -106,6 +106,9 @@ fun ProductForm(productType: String, productViewModel: ProductViewModel, modifie
     var productDescription by remember { mutableStateOf("") }
     var productPrice by remember { mutableStateOf("") }
     var productStock by remember { mutableStateOf("") }
+    var productStockmin by remember { mutableStateOf("") }
+
+
 
 
     Column(
@@ -128,6 +131,38 @@ fun ProductForm(productType: String, productViewModel: ProductViewModel, modifie
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp)
         )
+
+        Spacer(modifier = modifier.height(25.dp))
+        if (productType == "Adicional") {
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Column {
+                    Text(text = "Stock")
+                    OutlinedTextField(
+                        value = productStock,
+                        onValueChange = { productStock = it },
+                        label = { Text("Stock") },
+                        modifier = Modifier.width(150.dp),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
+                Column {
+                    Text(text = "Stock minimo")
+                    OutlinedTextField(
+                        value = productStockmin,
+                        onValueChange = { productStockmin = it },
+                        label = { Text("Stock mínimo") },
+                        modifier = Modifier.width(150.dp),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
+}
+
+
+        }
         Spacer(modifier = modifier.height(25.dp))
         Text(text = "Precio")
         OutlinedTextField(
@@ -137,17 +172,7 @@ fun ProductForm(productType: String, productViewModel: ProductViewModel, modifie
             modifier = Modifier.width(150.dp),
             shape = RoundedCornerShape(8.dp)
         )
-        Spacer(modifier = modifier.height(25.dp))
-        if (productType == "Adicional") {
-            Text(text = "Stock")
-            OutlinedTextField(
-                value = productStock,
-                onValueChange = { productStock = it },
-                label = { Text("Stock mínimo") },
-                modifier = Modifier.width(150.dp),
-                shape = RoundedCornerShape(8.dp)
-            )
-        }
+
 
         Spacer(modifier = modifier.height(25.dp))
         // Guardamos los datos en el ViewModel cuando el formulario cambie
@@ -155,7 +180,9 @@ fun ProductForm(productType: String, productViewModel: ProductViewModel, modifie
             name = productName,
             description = productDescription,
             price = productPrice.toDoubleOrNull() ?: 0.0,
-            stock = if (productType == "Adicional") productStock.toIntOrNull() ?: 0 else null
+            stock = if (productType == "Adicional") productStock.toIntOrNull() ?: 0 else null,
+            stockmin = if (productStockmin.isNotEmpty()) productStockmin.toInt() else 0, // Verifica que no esté vacío
+            type = productType
         )
     }
 }
@@ -172,7 +199,7 @@ fun HeaderRegisterInventory(navController: NavController, modifier: Modifier = M
                 colorResource(id = R.color.light_gris),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .padding(16.dp)
+            .padding(top = 48.dp),
     ) {
         IconButton(
             onClick = { navController.popBackStack() },
@@ -359,5 +386,9 @@ fun SuccessDialog(onDismiss: () -> Unit, productType: String) {
 }
 
 
-
+@Preview
+@Composable
+private fun regiPrev() {
+    
+}
 

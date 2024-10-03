@@ -93,7 +93,7 @@ fun HeaderStockInventory(navController: NavController, modifier: Modifier = Modi
                 colorResource(id = R.color.light_gris),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .padding(16.dp)
+            .padding(top = 48.dp),
     ) {
         IconButton(
             onClick = { navController.popBackStack() },

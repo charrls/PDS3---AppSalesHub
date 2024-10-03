@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,6 +24,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,9 +38,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
+import com.example.saleshub.model.Product
+import com.example.saleshub.viewmodel.ProductViewModel
 
 @Composable
-fun ViewInventoryScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun ViewInventoryScreen(
+    navController: NavController,
+    productViewModel: ProductViewModel,
+    modifier: Modifier = Modifier
+) {
+    // Obtenemos la lista de productos desde el ViewModel
+    val productList by productViewModel.productListState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -45,25 +56,24 @@ fun ViewInventoryScreen(navController: NavController, modifier: Modifier = Modif
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
-
     ) {
-
-        Column (horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             HeaderViewInventory(navController, Modifier.fillMaxWidth())
             iconInventory()
-            Column (modifier = Modifier
-                .height(600.dp))
-            {
-                ViewInventory(modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp))
+            Column(modifier = Modifier.height(600.dp)) {
+                ViewInventory(
+                    productList = productList,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(16.dp)
+                )
             }
-
         }
-
     }
 }
+
+
+
 
 
 
@@ -81,7 +91,7 @@ fun HeaderViewInventory(navController: NavController, modifier: Modifier = Modif
                 colorResource(id = R.color.light_gris),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .padding(16.dp)
+            .padding(top = 48.dp),
     ) {
         IconButton(
             onClick = { navController.popBackStack() },
@@ -139,54 +149,59 @@ fun iconInventory(modifier: Modifier = Modifier) {
 
 
 
-@Composable
-fun ViewInventory(modifier: Modifier = Modifier) {
-    val stock = 5
-    val minimumStock = 12
-    LazyColumn(
 
+@Composable
+fun ViewInventory(
+    productList: List<Product>, // Recibe la lista de productos
+    modifier: Modifier = Modifier
+) {
+
+    val filteredProductList = productList.filter { it.stock != null }
+
+    LazyColumn(
         modifier = modifier
             .padding(horizontal = 18.dp)
             .padding(top = 10.dp)
-
     ) {
-        items(10) { index ->
+        items(filteredProductList.size) { index ->
+            val product = filteredProductList[index] // Acceder al producto individual
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
                 border = BorderStroke(0.5.dp, Color.LightGray),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
-
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
 
-                    Row (
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
-
-                    ){
-                        Text("Producto:", fontWeight = FontWeight.Normal)
-                        if (stock < minimumStock) {
+                    ) {
+                        Text("Producto: ${product.name}", fontWeight = FontWeight.Normal)
+                        if (product.stock!! < product.stockmin) {
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = "Stock bajo",
                                 tint = Color.Red
                             )
+                        }else{
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = "Stock",
+                                tint = Color.Green
+                            )
                         }
                     }
-                    Text("Descripción")
-                    Row (
+                    Text("Descripción: ${product.description}")
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
-
-                    )
-                    {
-                        Text("Stock minimo: 12", fontWeight = FontWeight.Normal)
-                        Text("Stock: 5", fontWeight = FontWeight.Bold)
-
+                    ) {
+                        Text("Stock mínimo: ${product.stockmin}", fontWeight = FontWeight.Normal)
+                        Text("Stock: ${product.stock}", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -195,9 +210,3 @@ fun ViewInventory(modifier: Modifier = Modifier) {
 }
 
 
-
-@Preview
-@Composable
-private fun saleshistoryprev() {
-    ViewInventoryScreen(rememberNavController())
-}

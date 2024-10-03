@@ -1,6 +1,7 @@
 package com.example.saleshub.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.saleshub.data.ProductDao
@@ -9,6 +10,7 @@ import com.example.saleshub.repository.ProductRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class ProductViewModel(private val repository: ProductRepository) : ViewModel() {
@@ -17,12 +19,39 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
     private var productDescription: String = ""
     private var productPrice: Double = 0.0
     private var productStock: Int? = null
+    private var productStockmin: Int = 0
+    private var productType: String = ""
 
-    fun updateProductFields(name: String, description: String, price: Double, stock: Int?) {
+
+
+    // Estado que almacena la lista de productos
+    private val _productListState = MutableStateFlow<List<Product>>(emptyList())
+    val productListState: StateFlow<List<Product>> = _productListState
+
+    init {
+        // Llamamos a la función para obtener todos los productos al inicializar el ViewModel
+        getAllProducts()
+    }
+
+    // Función para recoger los productos desde el repositorio
+    private fun getAllProducts() {
+        viewModelScope.launch {
+            repository.getAllProducts().collect { products ->
+                _productListState.value = products // Actualiza el estado
+            }
+        }
+    }
+
+
+
+
+    fun updateProductFields(name: String, description: String, price: Double, stock: Int?, stockmin: Int, type: String) {
         productName = name
         productDescription = description
         productPrice = price
         productStock = stock
+        productStockmin = stockmin
+        productType = type
     }
 
 
@@ -33,7 +62,9 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
                         name = productName,
                         description = productDescription,
                         price = productPrice,
-                        stock = productStock
+                        stock = productStock,
+                        stockmin = productStockmin,
+                        type = productType
                     )
                     repository.insertProduct(newProduct)
                 } catch (e: Exception) {
