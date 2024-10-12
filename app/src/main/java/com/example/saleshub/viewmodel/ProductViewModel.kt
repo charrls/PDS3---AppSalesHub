@@ -24,20 +24,17 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
 
 
 
-    // Estado que almacena la lista de productos
     private val _productListState = MutableStateFlow<List<Product>>(emptyList())
     val productListState: StateFlow<List<Product>> = _productListState
 
     init {
-        // Llamamos a la función para obtener todos los productos al inicializar el ViewModel
         getAllProducts()
     }
 
-    // Función para recoger los productos desde el repositorio
     private fun getAllProducts() {
         viewModelScope.launch {
             repository.getAllProducts().collect { products ->
-                _productListState.value = products // Actualiza el estado
+                _productListState.value = products
             }
         }
     }
@@ -72,26 +69,46 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
                 }
             }
         }
-/*
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
-    val products = _products.asStateFlow()
 
-    fun getProductsByType(type: String): Flow<List<Product>> {
-        return repository.getProductsByType(type)
-    }
 
-    fun insertProduct(name: String, description: String, price: Double, stock: Int = 0, productType: String) {
+    fun deleteProduct(productId: Int) {
         viewModelScope.launch {
-            val product = Product(
-                name = name,
-                description = description,
-                price = price,
-                stock = stock,
-            )
-            repository.insertProduct(product)
+            try {
+                repository.deleteProduct(productId)
+            } catch (e: Exception) {
+                Log.e("ProductViewModel", "Error al eliminar el producto: ${e.message}")
+            }
         }
     }
-    */
+
+    fun updateProduct(product: Product) {
+        viewModelScope.launch {
+            try {
+                repository.updateProduct(product)
+            } catch (e: Exception) {
+                Log.e("ProductViewModel", "Error al actualizar el producto: ${e.message}")
+            }
+        }
+    }
+
+    fun updateStock(productId: Int, newStock: Int) {
+        viewModelScope.launch {
+            try {
+                repository.updateStock(productId, newStock)
+            } catch (e: Exception) {
+                Log.e("ProductViewModel", "Error al actualizar el stock: ${e.message}")
+            }
+        }
+    }
+
+     fun clearProductFields() {
+        productName = ""
+        productDescription = ""
+        productPrice = 0.0
+        productStock = null
+        productStockmin = 0
+        productType = ""
+    }
 
     }
 

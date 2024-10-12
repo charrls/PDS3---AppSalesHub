@@ -21,4 +21,14 @@ class ProductRepository(private val productDao: ProductDao) {
     suspend fun deleteProduct(id: Int) {
         productDao.deleteProduct(id)
     }
+
+    // Nueva función para actualizar un producto
+    suspend fun updateProduct(product: Product) {
+        productDao.updateProduct(product)
+    }
+
+    suspend fun updateStock(productId: Int, newStock: Int) {
+        productDao.updateStock(productId, newStock)
+    }
 }
+

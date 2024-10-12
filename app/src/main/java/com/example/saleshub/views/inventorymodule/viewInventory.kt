@@ -4,8 +4,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -149,64 +153,86 @@ fun iconInventory(modifier: Modifier = Modifier) {
 
 
 
-
 @Composable
 fun ViewInventory(
-    productList: List<Product>, // Recibe la lista de productos
+    productList: List<Product>,
     modifier: Modifier = Modifier
 ) {
-
     val filteredProductList = productList.filter { it.stock != null }
 
-    LazyColumn(
-        modifier = modifier
-            .padding(horizontal = 18.dp)
-            .padding(top = 10.dp)
-    ) {
-        items(filteredProductList.size) { index ->
-            val product = filteredProductList[index] // Acceder al producto individual
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                border = BorderStroke(0.5.dp, Color.LightGray),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+    if (filteredProductList.isEmpty()) {
+        Box(
+            contentAlignment = Alignment.TopStart,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+                .padding(horizontal = 22.dp)
+        ) {
+            Text(
+                text = "No se han registrado productos en el inventario.",
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier
+                .padding(horizontal = 18.dp)
+                .padding(top = 10.dp)
+        ) {
+            items(filteredProductList.size) { index ->
+                val product = filteredProductList[index]
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .shadow(2.dp, shape = RoundedCornerShape(16.dp)),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Producto: ${product.name}", fontWeight = FontWeight.Normal)
-                        if (product.stock!! < product.stockmin) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Stock bajo",
-                                tint = Color.Red
-                            )
-                        }else{
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Stock",
-                                tint = Color.Green
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row {
+                                Text("${product.name}", fontWeight = FontWeight.Bold)
+                                Text(" - ${product.description}", fontWeight = FontWeight.Normal, fontSize = 14.sp, color = Color.Gray)
+                            }
+
+                            if (product.stock!! < product.stockmin) {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = "Stock bajo",
+                                    tint = Color.Red
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Stock suficiente",
+                                    tint = colorResource(id = R.color.greenAlert)
+                                )
+                            }
                         }
-                    }
-                    Text("Descripción: ${product.description}")
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Stock mínimo: ${product.stockmin}", fontWeight = FontWeight.Normal)
-                        Text("Stock: ${product.stock}", fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Text("$${product.price}", fontWeight = FontWeight.Normal, fontSize = 14.sp, color = Color.Gray)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Stock mínimo: ${product.stockmin}", fontWeight = FontWeight.Normal, fontSize = 14.sp, color = Color.Gray)
+                            Text("${product.stock}", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
         }
     }
 }
+
 
 

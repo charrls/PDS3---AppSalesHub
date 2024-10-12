@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -164,7 +165,7 @@ fun selectProduct(modifier: Modifier = Modifier) {
                 Card(
                     modifier = Modifier
                         .padding(8.dp)
-                        .border(0.2.dp, color = Color.Gray, RoundedCornerShape(8.dp))
+                        .shadow(2.dp, RoundedCornerShape(12.dp))
                         .clickable { },
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons)),
@@ -194,7 +195,7 @@ fun selectProduct(modifier: Modifier = Modifier) {
                 Card(
                     modifier = Modifier
                         .padding(8.dp)
-                        .border(0.2.dp, color = Color.Gray, RoundedCornerShape(8.dp))
+                        .shadow(2.dp, RoundedCornerShape(12.dp))
                         .clickable { },
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons))

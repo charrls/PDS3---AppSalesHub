@@ -1,5 +1,6 @@
 package com.example.saleshub.views.inventorymodule
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -35,11 +37,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,8 +66,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
 import com.example.saleshub.viewmodel.ProductViewModel
-import java.time.format.TextStyle
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -67,36 +79,65 @@ fun RegisterProductScreen(
 ) {
     var productType by remember { mutableStateOf("Alimento") }
 
-    // Estado para el cuadro de diálogo de éxito
-    var showSuccessDialog by remember { mutableStateOf(false) }
+    // Estado para el Snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    // Usar Scaffold para la estructura básica
+    Scaffold(
+        topBar = {
             HeaderRegisterInventory(navController, Modifier.fillMaxWidth())
-            iconRInventory()
-            SelectTypeProduct { selectedType -> productType = selectedType }
-            ProductForm(productType = productType, productViewModel = productViewModel)
-        }
-        FootRegisterButtons(
-            productViewModel = productViewModel,
-            productType = productType, // Pasar productType
-            onRegisterSuccess = { type ->
-                showSuccessDialog = true // Cambia esto a true para mostrar el diálogo
+        },
+        snackbarHost = {
+            MySnackbarHost(snackbarHostState) // Usamos nuestra función personalizada
+        },
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Color.White),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    iconRInventory()
+                    SelectTypeProduct { selectedType -> productType = selectedType }
+                    ProductForm(productType = productType, productViewModel = productViewModel)
+                }
+                FootRegisterButtons(
+                    productViewModel = productViewModel,
+                    productType = productType,
+                    onRegisterSuccess = {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Producto registrado con éxito",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                )
             }
+        }
+    )
+}
+@Composable
+fun MySnackbarHost(snackbarHostState: SnackbarHostState) {
+    SnackbarHost(snackbarHostState) { snackbarData: SnackbarData ->
+        Snackbar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 120.dp),
+            snackbarData = snackbarData,
+            shape = RoundedCornerShape(8.dp) // Forma opcional
         )
     }
-
-    // Diálogo de éxito
-    if (showSuccessDialog) {
-        SuccessDialog(onDismiss = { showSuccessDialog = false }, productType = productType)
-    }
 }
+
+
+
+
+
 
 
 
@@ -144,19 +185,22 @@ fun ProductForm(productType: String, productViewModel: ProductViewModel, modifie
                     OutlinedTextField(
                         value = productStock,
                         onValueChange = { productStock = it },
-                        label = { Text("Stock") },
+                        label = { Text("Stock inicial") },
                         modifier = Modifier.width(150.dp),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+
                     )
                 }
                 Column {
-                    Text(text = "Stock minimo")
+                    Text(text = "")
                     OutlinedTextField(
                         value = productStockmin,
                         onValueChange = { productStockmin = it },
                         label = { Text("Stock mínimo") },
                         modifier = Modifier.width(150.dp),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
 }
@@ -170,7 +214,8 @@ fun ProductForm(productType: String, productViewModel: ProductViewModel, modifie
             onValueChange = { productPrice = it },
             label = { Text("$ 0.0") },
             modifier = Modifier.width(150.dp),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
 
@@ -271,7 +316,8 @@ fun SelectTypeProduct(modifier: Modifier = Modifier, onTypeSelected: (String) ->
                     selectedProduct,
                     fontSize = 16.sp,
                     color = Color.DarkGray,
-                    modifier = Modifier.padding(end = 12.dp)
+                    modifier = Modifier
+                        .padding(end = 12.dp)
                 )
                 Icon(imageVector = Icons.Filled.ArrowDropDown,
                     contentDescription = "Desplegar",
@@ -285,7 +331,9 @@ fun SelectTypeProduct(modifier: Modifier = Modifier, onTypeSelected: (String) ->
             ) {
                 productList.forEach { product ->
                     DropdownMenuItem(
-                        modifier = Modifier.background(Color.White),
+                        modifier = Modifier
+                            .width(145.dp)
+                            .background(Color.White),
                         text = {
                             Text(
                                 text = product,
@@ -313,7 +361,7 @@ fun SelectTypeProduct(modifier: Modifier = Modifier, onTypeSelected: (String) ->
 fun FootRegisterButtons(
     productViewModel: ProductViewModel,
     productType: String, // Agregar este parámetro
-    onRegisterSuccess: (String) -> Unit, // Función para manejar el registro exitoso
+    onRegisterSuccess: () -> Unit, // Función para manejar el registro exitoso
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -341,8 +389,8 @@ fun FootRegisterButtons(
             onClick = {
                 // Llamar a la función de registrar el producto en el ViewModel
                 productViewModel.registerProduct()
-                // Llama a la función de éxito con el tipo de producto
-                onRegisterSuccess(productType) // Enviar el tipo de producto
+                // Llama a la función de éxito
+                onRegisterSuccess() // Mostrar el Snackbar
             },
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.orangeButton)),
             modifier = Modifier
@@ -358,37 +406,5 @@ fun FootRegisterButtons(
 }
 
 
-@Composable
-fun SuccessDialog(onDismiss: () -> Unit, productType: String) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Registro Exitoso",
-                style = MaterialTheme.typography.titleLarge // Usar un estilo disponible
-            )
-        },
-        text = {
-            Text(
-                text = "El producto se registró con éxito como: $productType",
-                style = MaterialTheme.typography.bodyMedium // Usar un estilo disponible
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors() // Usar colores por defecto
-            ) {
-                Text("Aceptar")
-            }
-        }
-    )
-}
 
-
-@Preview
-@Composable
-private fun regiPrev() {
-    
-}
 

@@ -17,5 +17,8 @@
     <color name="purpleButton">#CA6CE5</color>
     <color name="redButton">#FF5050</color>
 
+    <color name="greenAlert">#0EE255</color>
+    <color name="orangeAlertRegister">#FFCB7C</color>
+
 
 </resources>

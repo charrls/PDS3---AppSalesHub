@@ -27,8 +27,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SalesHubTheme {
+
                 val navController = rememberNavController()
-// Dentro de MainActivity
                 val productDao = ProductDatabase.getDatabase(applicationContext).productDao()
                 Log.d("MainActivity", "ProductDao initialized: $productDao")
                 val repository = ProductRepository(productDao)
@@ -38,7 +38,6 @@ class MainActivity : ComponentActivity() {
                 ).get(ProductViewModel::class.java)
                 Log.d("MainActivity", "ProductViewModel initialized: $productViewModel")
 
-                // Pasar el ViewModel al gráfico de navegación
                 MainNavGraph(navController, productViewModel)
             }
         }

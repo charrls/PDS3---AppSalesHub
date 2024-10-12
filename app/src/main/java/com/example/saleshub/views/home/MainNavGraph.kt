@@ -69,16 +69,16 @@ fun MainNavGraph(navController: NavHostController, productViewModel: ProductView
         //Pantallas secundarios de Modulo inventario
 
         composable(Screen.DeleteProduct.route) {
-            DeleteInventoryScreen(navController)
+            DeleteInventoryScreen(navController, productViewModel)
         }
         composable(Screen.EditProduct.route) {
-            EditProductScreen(navController)
+            EditProductScreen(navController, productViewModel )
         }
         composable(Screen.RegisterProduct.route) {
             RegisterProductScreen(navController, productViewModel)
         }
         composable(Screen.UpdateStock.route) {
-            UpdateStockScreen(navController)
+            UpdateStockScreen(navController, productViewModel)
         }
 
         composable(Screen.ViewInventory.route) {

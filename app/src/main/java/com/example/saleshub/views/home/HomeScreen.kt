@@ -70,7 +70,9 @@ fun Header(modifier: Modifier = Modifier) {
                 colorResource(id = R.color.light_gris),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .padding(top = 48.dp),
+            .shadow(1.dp, shape = RoundedCornerShape(12.dp))
+            .padding(top = 48.dp)
+
 
 
     ){
@@ -196,6 +198,8 @@ fun pieBotones(navController: NavController, modifier: Modifier = Modifier) {
                 shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
 
             )
+            .shadow(1.dp, shape = RoundedCornerShape(12.dp))
+
     ){
         Row(
             modifier = modifier
