@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +23,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -66,21 +69,41 @@ import kotlinx.coroutines.launch
 fun EditProductScreen(
     navController: NavController,
     productViewModel: ProductViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFromSwipe: Boolean = false, // Indica si la navegación es desde swipe-to-edit
+    productId: String? = null // ID del producto para rellenar automáticamente
 ) {
     val productList by productViewModel.productListState.collectAsState()
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
-    var productName by remember { mutableStateOf("") }
-    var productDescription by remember { mutableStateOf("") }
-    var productPrice by remember { mutableStateOf("") }
-    var productStock by remember { mutableStateOf("") }
-    var productStockMin by remember { mutableStateOf("") }
-    var productType by remember { mutableStateOf("") }
+
+    // Usar un data class para manejar el estado del formulario
+    var productFormState by remember { mutableStateOf(ProductFormState()) }
+
     var showConfirmDialog by remember { mutableStateOf(false) } // Estado para mostrar el diálogo de confirmación
 
     // Estado del Snackbar
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    // Inicializar el producto si venimos de swipe
+    if (isFromSwipe && productId != null) {
+        val foundProduct = productList.find { it.id == productId.toInt() }
+
+        // Solo actualizar si hay un producto encontrado y es diferente del actual
+        if (foundProduct != null && foundProduct != selectedProduct) {
+            selectedProduct = foundProduct
+
+            // Actualiza el estado del formulario con el producto encontrado
+            productFormState = ProductFormState(
+                name = foundProduct.name,
+                description = foundProduct.description,
+                price = foundProduct.price.toString(),
+                stock = foundProduct.stock?.toString() ?: "",
+                stockMin = foundProduct.stockmin.toString(),
+                type = foundProduct.type
+            )
+        }
+    }
 
     // Usar Scaffold para la estructura básica
     Scaffold(
@@ -102,45 +125,51 @@ fun EditProductScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     iconEInventory()
 
-                    // Dropdown para seleccionar el producto
-                    SelectEditProduct(
-                        productList = productList,
-                        selectedProduct = selectedProduct,
-                        onProductSelected = { product ->
-                            selectedProduct = product
-                            productName = product.name
-                            productDescription = product.description
-                            productPrice = product.price.toString()
-                            productStock = product.stock?.toString() ?: ""
-                            productStockMin = product.stockmin.toString()
-                            productType = product.type
-                        }
-                    )
+                    // Card con la información del producto que se está editando
+                    selectedProduct?.let {
+                        ProductInfoCard(it)
+                    }
 
                     // Formulario para editar el producto
-                    selectedProduct?.let {
-                        EditProductForm(
-                            productName = productName,
-                            onProductNameChange = { productName = it },
-                            productDescription = productDescription,
-                            onProductDescriptionChange = { productDescription = it },
-                            productPrice = productPrice,
-                            onProductPriceChange = { productPrice = it },
-                            productStock = productStock,
-                            onProductStockChange = { productStock = it },
-                            productStockMin = productStockMin,
-                            onProductStockMinChange = { productStockMin = it },
-                            productType = productType
-                        )
-                    }
+                    EditProductForm(
+                        productName = productFormState.name,
+                        onProductNameChange = { productFormState = productFormState.copy(name = it) },
+                        productDescription = productFormState.description,
+                        onProductDescriptionChange = { productFormState = productFormState.copy(description = it) },
+                        productPrice = productFormState.price,
+                        onProductPriceChange = { productFormState = productFormState.copy(price = it) },
+                        productStock = productFormState.stock,
+                        onProductStockChange = { productFormState = productFormState.copy(stock = it) },
+                        productStockMin = productFormState.stockMin,
+                        onProductStockMinChange = { productFormState = productFormState.copy(stockMin = it) },
+                        productType = productFormState.type,
+                        stockError = validateProductForm(productFormState).stockError, // Mensaje de error de stock
+                        stockMinError = validateProductForm(productFormState).stockMinError, // Mensaje de error de stock mínimo
+                        nameError = validateProductForm(productFormState).nameError, // Mensaje de error de nombre
+                        priceError = validateProductForm(productFormState).priceError // Mensaje de error de precio
+                    )
                 }
 
                 // Botón de actualizar
+                val validatedFormState = validateProductForm(productFormState)
+
                 FootUpdateButtons(
                     onUpdateClicked = {
-                        // Muestra el diálogo de confirmación al hacer clic en "Actualizar"
-                        showConfirmDialog = true
-                    }
+                        if (validatedFormState.isValid && isFormChanged(productFormState, selectedProduct)) {
+                            showConfirmDialog = true
+                        } else {
+                            validatedFormState.errorMessages.forEach { errorMessage ->
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = errorMessage,
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    onCancelClicked = { navController.popBackStack() },
+                    isUpdateEnabled = validatedFormState.isValid && isFormChanged(productFormState, selectedProduct)
                 )
             }
         }
@@ -149,21 +178,20 @@ fun EditProductScreen(
     // AlertDialog de confirmación para actualizar el producto
     if (showConfirmDialog) {
         ConfirmUpdateDialog(
-            productName = productName,
+            productName = productFormState.name,
             onConfirmUpdate = {
                 selectedProduct?.let { product ->
                     productViewModel.updateProduct(
                         Product(
                             id = product.id,
-                            name = productName,
-                            description = productDescription,
-                            price = productPrice.toDoubleOrNull() ?: 0.0,
-                            stock = productStock.toIntOrNull(),
-                            stockmin = productStockMin.toIntOrNull() ?: 0,
-                            type = productType
+                            name = productFormState.name,
+                            description = productFormState.description,
+                            price = productFormState.price.toDoubleOrNull() ?: 0.0,
+                            stock = productFormState.stock.toIntOrNull(),
+                            stockmin = productFormState.stockMin.toIntOrNull() ?: 0,
+                            type = productFormState.type
                         )
                     )
-
 
                     // Mostrar el Snackbar al actualizar el producto
                     coroutineScope.launch {
@@ -172,16 +200,55 @@ fun EditProductScreen(
                             duration = SnackbarDuration.Short
                         )
                     }
-
-
+                    navController.popBackStack() // Regresar a la pantalla anterior
                 }
-                showConfirmDialog = false
+                showConfirmDialog = false // Ocultar el diálogo de confirmación
             },
             onDismiss = { showConfirmDialog = false }
         )
     }
 }
 
+
+// Función para verificar si el formulario ha cambiado
+private fun isFormChanged(productFormState: ProductFormState, selectedProduct: Product?): Boolean {
+    return selectedProduct?.let {
+        it.name != productFormState.name ||
+                it.description != productFormState.description ||
+                it.price.toString() != productFormState.price ||
+                it.stock.toString() != productFormState.stock ||
+                it.stockmin.toString() != productFormState.stockMin
+    } ?: false
+}
+
+@Composable
+fun ProductInfoCard(product: Product) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 40.dp)
+            .padding(bottom = 16.dp),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White // Cambia el color de fondo aquí
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = product.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = product.description, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+        }
+    }
+}
+
+// Otras funciones no cambiaron...
 
 @Composable
 fun MySnackbarHost(snackbarHostState: SnackbarHostState) {
@@ -199,90 +266,6 @@ fun MySnackbarHost(snackbarHostState: SnackbarHostState) {
 
 
 @Composable
-fun SelectEditProduct(
-    productList: List<Product>,
-    selectedProduct: Product?,
-    onProductSelected: (Product) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedProductName by remember { mutableStateOf(selectedProduct?.let { "${it.name}: ${it.description}" } ?: "Seleccionar producto") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 18.dp)
-            .padding(horizontal = 30.dp)
-    ) {
-        Box {
-            OutlinedButton(
-                onClick = { expanded = !expanded },
-                modifier = Modifier
-                    .width(250.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = selectedProductName,
-                        fontSize = 16.sp,
-                        color = Color.DarkGray,
-                        modifier = Modifier.padding(end = 12.dp)
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.ArrowDropDown,
-                        contentDescription = "Desplegar",
-                        tint = Color.DarkGray
-                    )
-                }
-            }
-            DropdownMenu(
-                modifier = Modifier
-                    .background(Color.White)
-                    .height(400.dp)
-                    .width(250.dp),
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                productList.forEach { product ->
-                    DropdownMenuItem(
-                        modifier = Modifier.background(Color.White),
-                        onClick = {
-                            selectedProductName = "${product.name}: ${product.description}"
-                            expanded = false
-                            onProductSelected(product)
-                        },
-                        text = {
-                            Row (
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ){
-                                Text(
-                                    text = "${product.name}: ${product.description}",
-                                    fontSize = 14.sp,
-                                    color = Color.DarkGray,
-                                    modifier = Modifier.padding(8.dp)
-                                )
-                                Text(
-                                    text = "${product.type}",
-                                    fontSize = 12.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(8.dp)
-                                )
-                            }
-                        }
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(26.dp))
-    }
-}
-
-
-
-
-@Composable
 fun EditProductForm(
     productName: String,
     onProductNameChange: (String) -> Unit,
@@ -295,6 +278,10 @@ fun EditProductForm(
     productStockMin: String,
     onProductStockMinChange: (String) -> Unit,
     productType: String,
+    stockError: String?, // Mensaje de error de stock
+    stockMinError: String?, // Mensaje de error de stock mínimo
+    nameError: String?, // Mensaje de error de nombre
+    priceError: String?, // Mensaje de error de precio
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -306,8 +293,11 @@ fun EditProductForm(
             onValueChange = onProductNameChange,
             label = { Text("Nombre del producto") },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            isError = nameError != null,
+            singleLine = true
         )
+        nameError?.let { Text(text = it, color = Color.Red) }
         Spacer(modifier = Modifier.height(25.dp))
 
         Text(text = "Descripción")
@@ -316,21 +306,23 @@ fun EditProductForm(
             onValueChange = onProductDescriptionChange,
             label = { Text("Descripción del producto") },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(25.dp))
 
-        // Mostrar stock mínimo solo si el tipo de producto es "Adicional"
         if (productType == "Adicional") {
             Text(text = "Stock mínimo")
             OutlinedTextField(
                 value = productStockMin,
                 onValueChange = onProductStockMinChange,
                 label = { Text("Stock mínimo") },
-                modifier = Modifier.width(150.dp),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
+                isError = stockMinError != null,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
+            stockMinError?.let { Text(text = it, color = Color.Red) }
             Spacer(modifier = Modifier.height(25.dp))
         }
 
@@ -338,21 +330,97 @@ fun EditProductForm(
         OutlinedTextField(
             value = productPrice,
             onValueChange = onProductPriceChange,
-            label = { Text("$ 0.0") },
-            modifier = Modifier.width(150.dp),
+            label = { Text("Precio") },
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
+            isError = priceError != null,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-
         )
+        priceError?.let { Text(text = it, color = Color.Red) }
+        Spacer(modifier = Modifier.height(25.dp))
     }
 }
 
+
+private fun validateProductForm(productFormState: ProductFormState): ProductFormValidationState {
+    val errorMessages = mutableListOf<String>()
+    var isValid = true
+
+    // Validar el nombre del producto
+    val nameError = if (productFormState.name.isBlank()) {
+        isValid = false
+        "Campo obligatorio"
+    } else if (productFormState.name.length > 25) {
+        isValid = false
+        "Maximo 25 caracteres"
+    } else {
+        null
+    }
+
+    // Validar el precio
+    val price = productFormState.price.toDoubleOrNull()
+    val priceError = if (price == null || price <= 0) {
+        isValid = false
+        "Dato no valido"
+    } else {
+        null
+    }
+
+    // Validar el stock (solo si es un tipo 'Adicional')
+    val stock = productFormState.stock.toIntOrNull()
+    val stockError = if (productFormState.type == "Adicional" && (stock == null || stock < 0)) {
+        isValid = false
+        "Dato no valido"
+    } else {
+        null
+    }
+
+    // Validar el stock mínimo (solo si es un tipo 'Adicional')
+    val stockMin = productFormState.stockMin.toIntOrNull()
+    val stockMinError = if (productFormState.type == "Adicional" && (stockMin == null || stockMin < 0)) {
+        isValid = false
+        "Dato no valido"
+    } else {
+        null
+    }
+
+    return ProductFormValidationState(
+        isValid = isValid,
+        stockError = stockError,
+        stockMinError = stockMinError,
+        nameError = nameError, // Asegúrate de incluir este campo
+        priceError = priceError, // Asegúrate de incluir este campo
+        errorMessages = errorMessages
+    )
+}
+
+
+
+data class ProductFormState(
+    val name: String = "",
+    val description: String = "",
+    val price: String = "",
+    val stock: String = "",
+    val stockMin: String = "",
+    val type: String = ""
+)
+
+data class ProductFormValidationState(
+    val isValid: Boolean,
+    val stockError: String?,
+    val stockMinError: String?,
+    val nameError: String?, // Agregar este campo
+    val priceError: String?, // Agregar este campo
+    val errorMessages: List<String>
+)
 
 
 
 @Composable
 fun FootUpdateButtons(
     onUpdateClicked: () -> Unit,
+    onCancelClicked: () -> Unit, // Nueva propiedad para manejar la acción de cancelar
+    isUpdateEnabled: Boolean, // Propiedad existente para habilitar/deshabilitar
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -363,7 +431,7 @@ fun FootUpdateButtons(
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         Button(
-            onClick = { /* Cancelar acción */ },
+            onClick = onCancelClicked, // Llama a la función onCancelClicked
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.grayButton)),
             modifier = Modifier
                 .height(55.dp)
@@ -379,6 +447,7 @@ fun FootUpdateButtons(
 
         Button(
             onClick = onUpdateClicked,
+            enabled = isUpdateEnabled, // Deshabilitar el botón si no hay cambios
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.orangeButton)),
             modifier = Modifier
                 .height(55.dp)
@@ -393,72 +462,6 @@ fun FootUpdateButtons(
 }
 
 
-
-@Composable
-fun HeaderEditInventory(navController: NavController, modifier: Modifier = Modifier) {
-
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
-            )
-            .padding(top = 48.dp),
-    ) {
-        IconButton(
-            onClick = { navController.popBackStack() },
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-        Text(
-            text = "Editar producto",
-            fontSize = 20.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(end = 16.dp)
-        )
-    }
-
-}
-
-@Composable
-fun iconEInventory(modifier: Modifier = Modifier) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row (
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(30.dp),
-            horizontalArrangement = Arrangement.Start)
-        {
-            Image(
-                painter = painterResource(id = R.drawable.inventario),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(35.dp)
-            )
-            Divider(
-                color = Color.Gray,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 2.dp)
-                    .height(1.dp)
-                    .align(alignment = Alignment.CenterVertically)
-            )
-
-        }
-    }
-}
 
 @Composable
 fun ConfirmUpdateDialog(
@@ -555,4 +558,75 @@ fun ConfirmUpdateDialog(
         containerColor = Color.White,
         shape = RoundedCornerShape(16.dp)
     )
+}
+
+
+
+
+
+
+@Composable
+fun HeaderEditInventory(navController: NavController, modifier: Modifier = Modifier) {
+
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                colorResource(id = R.color.light_gris),
+                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
+            )
+            .padding(top = 48.dp),
+    ) {
+        IconButton(
+            onClick = { navController.popBackStack() },
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Volver",
+                tint = Color.DarkGray,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        Text(
+            text = "Editar producto",
+            fontSize = 20.sp,
+            color = Color.DarkGray,
+            modifier = Modifier.padding(end = 16.dp)
+        )
+    }
+
+}
+
+@Composable
+fun iconEInventory(modifier: Modifier = Modifier) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row (
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(30.dp),
+            horizontalArrangement = Arrangement.Start)
+        {
+            Image(
+                painter = painterResource(id = R.drawable.inventario),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(35.dp)
+            )
+            Divider(
+                color = Color.Gray,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 2.dp)
+                    .height(1.dp)
+                    .align(alignment = Alignment.CenterVertically)
+            )
+
+        }
+    }
 }

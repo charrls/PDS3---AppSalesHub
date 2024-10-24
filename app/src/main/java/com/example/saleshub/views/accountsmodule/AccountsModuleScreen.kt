@@ -189,7 +189,7 @@ fun pieBotonesCuentas(navController: NavController, modifier: Modifier = Modifie
         CustomPieButtonCuentas(
             text = "Inventario",
             iconResId = R.drawable.inventario,
-            onClick = { navController.navigate(Screen.InventoryModule.route) }
+            onClick = { navController.navigate(Screen.viewInventoryContent.route) }
         )
         CustomPieButtonCuentas(
             text = "Ventas",

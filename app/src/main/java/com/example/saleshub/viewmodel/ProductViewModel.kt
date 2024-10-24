@@ -75,6 +75,7 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
         viewModelScope.launch {
             try {
                 repository.deleteProduct(productId)
+                getAllProducts()
             } catch (e: Exception) {
                 Log.e("ProductViewModel", "Error al eliminar el producto: ${e.message}")
             }

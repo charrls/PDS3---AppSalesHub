@@ -2,6 +2,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -43,23 +46,45 @@ import com.example.saleshub.model.Screen
 
 @Composable
 fun InventoryModuleScreen(navController: NavController) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+            .background(Color.White)
     ) {
+        // Contenido principal
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                encabezadoModuloInventario(navController, Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.height(30.dp))
 
-        Column (horizontalAlignment = Alignment.CenterHorizontally) {
-            encabezadoModuloInventario(navController, Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(30.dp))
-
-            contenidoModuloInventario(navController)
+                contenidoModuloInventario(navController)
+            }
+            pieBotonesInventario(navController)
         }
-        pieBotonesInventario(navController)
+
+        // Botón flotante en la parte inferior izquierda
+        FloatingActionButton(
+            onClick = {
+                navController.navigate(Screen.viewInventoryContent.route)
+            },
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 30.dp)
+                .padding(bottom = 90.dp),  // Padding para darle un poco de espacio a la esquina
+            containerColor = Color.LightGray // Cambia el color si es necesario
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = "Más opciones"
+            )
+        }
     }
 }
+
 
 @Composable
 fun encabezadoModuloInventario(navController: NavController, modifier: Modifier = Modifier) {

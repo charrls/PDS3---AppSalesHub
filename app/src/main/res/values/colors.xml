@@ -14,11 +14,13 @@
     <color name="greenButton">#7ED857</color>
     <color name="grayButton">#6A6A6A</color>
     <color name="orangeButton">#FEBC59</color>
+    <color name="orangeButtonAdd">#FDC674</color>
     <color name="purpleButton">#CA6CE5</color>
     <color name="redButton">#FF5050</color>
 
     <color name="greenAlert">#0EE255</color>
     <color name="orangeAlertRegister">#FFCB7C</color>
+
 
 
 </resources>

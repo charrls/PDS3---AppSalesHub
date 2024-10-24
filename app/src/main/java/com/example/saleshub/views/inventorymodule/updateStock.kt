@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,6 +40,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,18 +69,17 @@ import com.example.saleshub.viewmodel.ProductViewModel
 
 
 @Composable
-fun UpdateStockScreen(navController: NavController, productViewModel: ProductViewModel, modifier: Modifier = Modifier) {
+fun UpdateStockScreen(navController: NavController, productViewModel: ProductViewModel, productId: Int) {
     val productList by productViewModel.productListState.collectAsState()
-    val adicionalProducts = productList.filter { it.type == "Adicional" } // Filtrar solo productos Adicionales
-    var selectedProductId by remember { mutableStateOf<Int?>(null) }
+    val productToUpdate = productList.find { it.id == productId }
+
     var showDialog by remember { mutableStateOf(false) }
     var stockCount by remember { mutableStateOf(0) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            ,
+            .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -86,36 +87,33 @@ fun UpdateStockScreen(navController: NavController, productViewModel: ProductVie
             HeaderStockInventory(navController, Modifier.fillMaxWidth())
             iconInventory()
 
-            SelectProduct(adicionalProducts, { productId ->
-                selectedProductId = productId
-                stockCount = 0
-            })
-
-
+            productToUpdate?.let {
+                ProductDetailsCard(product = it, modifier = Modifier)
+            }
         }
 
+        // Botón para añadir stock
         AddStockButton(stockCount, { newStock ->
             stockCount = newStock
         })
 
+        // Pasamos el stockCount al botón de registrar para habilitar/deshabilitar
         FootStockButtons(
+            stockCount = stockCount,
             onRegisterClick = {
                 showDialog = true
             }
         )
     }
 
-    if (showDialog) {
-        val productToUpdate = productList.find { it.id == selectedProductId }
+    if (showDialog && productToUpdate != null) {
         ConfirmUpdateDialog(
-            productName = productToUpdate?.name ?: "",
+            productName = productToUpdate.name,
             stockCount = stockCount,
             onConfirmUpdate = {
-                selectedProductId?.let { productId ->
-                    val currentStock = productToUpdate?.stock ?: 0
-                    productViewModel.updateStock(productId, currentStock + stockCount)
-                    showDialog = false
-                }
+                val currentStock = productToUpdate.stock ?: 0
+                productViewModel.updateStock(productId, currentStock + stockCount)
+                showDialog = false
             },
             onDismiss = { showDialog = false }
         )
@@ -124,90 +122,14 @@ fun UpdateStockScreen(navController: NavController, productViewModel: ProductVie
 
 
 
-@Composable
-fun SelectProduct(productList: List<Product>, onProductSelected: (Int) -> Unit, modifier: Modifier = Modifier) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedProduct by remember { mutableStateOf<Product?>(null) }
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(30.dp)
-    ) {
-        Box {
-            OutlinedButton(
-                onClick = { expanded = !expanded },
-                modifier = Modifier
-                    .width(250.dp)  // Establecer un ancho por defecto para el botón
-            ) {
-                Row (
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text(
-                        selectedProduct?.let { "${it.name}: ${it.description}" } ?: "Selecciona un producto",
-                        fontSize = 16.sp,
-                        color = Color.DarkGray,
-                        modifier = Modifier.padding(end = 12.dp)
-                    )
-                    Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Desplegar", tint = Color.DarkGray)
-                }
-
-            }
-            DropdownMenu(
-                modifier = Modifier
-                    .background(Color.White)
-                    .height(400.dp)
-                    .width(250.dp),  // Establecer el mismo ancho para el menú desplegable
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                productList.forEach { product ->
-                    DropdownMenuItem(
-                        modifier = Modifier.background(Color.White),
-                        onClick = {
-                            selectedProduct = product
-                            expanded = false
-                            onProductSelected(product.id)
-                        },
-                        text = {
-                            Text(
-                                text = "${product.name}: ${product.description}",
-                                fontSize = 14.sp,
-                                color = Color.DarkGray,
-                                modifier = Modifier.padding(8.dp)
-                            )
-                        },
-                        trailingIcon = {
-                            if (product.stock!! < product.stockmin){
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = "Check icon",
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-
-                        }
-                    )
-                }
-            }
-        }
-        Spacer(modifier = modifier.height(26.dp))
-        if (selectedProduct != null) {
-            ProductDetailsCard(product = selectedProduct!!)
-        }
-    }
-}
-
-
 
 @Composable
 fun ProductDetailsCard(product: Product, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 16.dp),
+            .padding(top = 16.dp)
+            .padding(horizontal = 26.dp),
         border = BorderStroke(1.dp, Color.Gray),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
@@ -358,12 +280,30 @@ fun ConfirmUpdateDialog(
     )
 }
 
+
+
 @Composable
 fun AddStockButton(
     stockCount: Int,
     onAddStock: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Obtenemos el color de recursos dentro del bloque composable
+    val orangeButtonColor = colorResource(id = R.color.orangeButtonAdd)
+    val defaultButtonColor = Color.LightGray
+
+    // Variable de estado para el color del botón, inicialmente en gris claro
+    var buttonColor by remember { mutableStateOf(defaultButtonColor) }
+
+    // Actualizamos el color del botón según el valor de stockCount
+    LaunchedEffect(stockCount) {
+        buttonColor = if (stockCount > 0) {
+            orangeButtonColor // Cambia a naranja si el stock es mayor que cero
+        } else {
+            defaultButtonColor // Vuelve al color por defecto si el stock es 0 o vacío
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -374,21 +314,26 @@ fun AddStockButton(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Campo de texto para el stock
             OutlinedTextField(
                 value = stockCount.toString(),
-                onValueChange = { newValue -> onAddStock(newValue.toIntOrNull() ?: stockCount) },
+                onValueChange = { newValue -> onAddStock(newValue.toIntOrNull() ?: 0) }, // Controla los valores vacíos o no válidos
                 singleLine = true,
                 modifier = Modifier.width(80.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
+
+            // Botón que agrega al stock y cambia el color
             Button(
-                onClick = { onAddStock(stockCount + 1) },
+                onClick = {
+                    onAddStock(stockCount + 1)
+                },
                 modifier = Modifier
                     .width(55.dp)
                     .height(55.dp)
                     .border(0.dp, Color.Transparent, RoundedCornerShape(10.dp)),
                 shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Incrementar")
@@ -397,8 +342,18 @@ fun AddStockButton(
     }
 }
 
+
 @Composable
-fun FootStockButtons(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
+fun FootStockButtons(
+    stockCount: Int, // Recibe el valor del stock
+    onRegisterClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val defaultButtonColor = colorResource(id = R.color.grayButton)
+    val enabledButtonColor = colorResource(id = R.color.orangeButton)
+
+    // El botón de registrar solo está habilitado si el stock es mayor a 0
+    val isRegisterEnabled = stockCount > 0
 
     Row(
         modifier = modifier
@@ -407,9 +362,10 @@ fun FootStockButtons(modifier: Modifier = Modifier, onRegisterClick: () -> Unit)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
+        // Botón de cancelar (siempre habilitado)
         Button(
             onClick = { },
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.grayButton)),
+            colors = ButtonDefaults.buttonColors(containerColor = defaultButtonColor),
             modifier = Modifier
                 .height(55.dp)
                 .weight(0.7f)
@@ -422,9 +378,13 @@ fun FootStockButtons(modifier: Modifier = Modifier, onRegisterClick: () -> Unit)
 
         Spacer(modifier = modifier.width(40.dp))
 
+        // Botón de registrar (habilitado/deshabilitado según el stockCount)
         Button(
             onClick = { onRegisterClick() },
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.orangeButton)),
+            enabled = isRegisterEnabled, // Habilitar solo si el stock es mayor que 0
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isRegisterEnabled) enabledButtonColor else defaultButtonColor
+            ),
             modifier = Modifier
                 .height(55.dp)
                 .weight(1f)
@@ -436,6 +396,8 @@ fun FootStockButtons(modifier: Modifier = Modifier, onRegisterClick: () -> Unit)
         }
     }
 }
+
+
 
 @Composable
 fun HeaderStockInventory(navController: NavController, modifier: Modifier = Modifier) {

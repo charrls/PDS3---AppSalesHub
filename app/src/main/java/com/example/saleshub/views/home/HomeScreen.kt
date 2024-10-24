@@ -136,7 +136,7 @@ fun accesoRapido(navController: NavController, modifier: Modifier = Modifier) {
             CustomButton(
                 text = "Ver inventario",
                 onClick = {
-                    navController.navigate(Screen.ViewInventory.route)
+                    navController.navigate(Screen.viewInventoryContent.route)
                 }
             )
             CustomButton(
@@ -211,7 +211,7 @@ fun pieBotones(navController: NavController, modifier: Modifier = Modifier) {
                 text = "Inventario",
                 iconResId = R.drawable.inventario,
                 onClick = {
-                    navController.navigate(Screen.InventoryModule.route)
+                    navController.navigate(Screen.viewInventoryContent.route)
                 }
             )
             CustomPieButton(

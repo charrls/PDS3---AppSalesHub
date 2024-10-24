@@ -16,9 +16,11 @@ sealed class Screen(val route: String) {
 
 
     object DeleteProduct : Screen("delete_product")
+    object EditProductSwipe : Screen("delete_product")
     object EditProduct : Screen("edit_product")
     object RegisterProduct : Screen("register_product")
     object UpdateStock : Screen("update_stock")
     object ViewInventory : Screen("view_inventory")
+    object viewInventoryContent : Screen("inventory_content")
 
 }

@@ -4,6 +4,7 @@ import DeleteInventoryScreen
 import EditProductScreen
 import InventoryModuleScreen
 import UpdateStockScreen
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -16,7 +17,7 @@ import com.example.saleshub.views.accountsmodule.DeadlinesScreen
 import com.example.saleshub.views.accountsmodule.DeptPaymentScreen
 import com.example.saleshub.views.accountsmodule.RegisterClientScreen
 import com.example.saleshub.views.inventorymodule.RegisterProductScreen
-import com.example.saleshub.views.inventorymodule.ViewInventoryScreen
+import com.example.saleshub.views.inventorymodule.ViewInventoryScreenContent
 import com.example.saleshub.views.salesmodule.SalesHistoryScreen
 import com.example.saleshub.views.salesmodule.SalesModuleScreen
 import com.example.saleshub.views.salesmodule.registerSaleScreen
@@ -71,18 +72,29 @@ fun MainNavGraph(navController: NavHostController, productViewModel: ProductView
         composable(Screen.DeleteProduct.route) {
             DeleteInventoryScreen(navController, productViewModel)
         }
-        composable(Screen.EditProduct.route) {
-            EditProductScreen(navController, productViewModel )
+        composable("edit_product/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
+            EditProductScreen(navController, productViewModel, productId = productId, isFromSwipe = true)
         }
+        composable(Screen.EditProduct.route) {
+            EditProductScreen(navController, productViewModel)
+        }
+
         composable(Screen.RegisterProduct.route) {
             RegisterProductScreen(navController, productViewModel)
         }
-        composable(Screen.UpdateStock.route) {
-            UpdateStockScreen(navController, productViewModel)
+
+        composable("update_stock/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
+            productId?.let {
+                UpdateStockScreen(navController, productViewModel, it)
+            }
         }
 
-        composable(Screen.ViewInventory.route) {
-            ViewInventoryScreen(navController, productViewModel )
+
+
+        composable(Screen.viewInventoryContent.route) {
+            ViewInventoryScreenContent(navController, productViewModel )
         }
     }
 }
