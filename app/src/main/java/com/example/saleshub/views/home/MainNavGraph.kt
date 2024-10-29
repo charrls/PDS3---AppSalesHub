@@ -12,7 +12,8 @@ import androidx.navigation.compose.composable
 import com.example.saleshub.model.Product
 import com.example.saleshub.model.Screen
 import com.example.saleshub.viewmodel.ProductViewModel
-import com.example.saleshub.views.accountsmodule.AccountsModuleScreen
+import com.example.saleshub.viewmodel.ClientViewModel
+import com.example.saleshub.views.accountsmodule.ViewAccountsScreenContent
 import com.example.saleshub.views.accountsmodule.DeadlinesScreen
 import com.example.saleshub.views.accountsmodule.DeptPaymentScreen
 import com.example.saleshub.views.accountsmodule.RegisterClientScreen
@@ -25,7 +26,7 @@ import com.example.saleshub.views.salesmodule.registerSaleScreen
 
 
 @Composable
-fun MainNavGraph(navController: NavHostController, productViewModel: ProductViewModel) {
+fun MainNavGraph(navController: NavHostController, productViewModel: ProductViewModel, clientViewModel: ClientViewModel) {
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -41,7 +42,7 @@ fun MainNavGraph(navController: NavHostController, productViewModel: ProductView
             SalesModuleScreen(navController)
         }
         composable(Screen.AccountsModule.route) {
-            AccountsModuleScreen(navController)
+            ViewAccountsScreenContent(navController, clientViewModel)
         }
         composable(Screen.InventoryModule.route) {
             InventoryModuleScreen(navController)
@@ -64,7 +65,7 @@ fun MainNavGraph(navController: NavHostController, productViewModel: ProductView
             DeptPaymentScreen(navController)
         }
         composable(Screen.RegisterClient.route) {
-            RegisterClientScreen(navController)
+            RegisterClientScreen(navController, clientViewModel)
         }
 
         //Pantallas secundarios de Modulo inventario

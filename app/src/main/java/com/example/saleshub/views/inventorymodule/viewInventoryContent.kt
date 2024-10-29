@@ -154,10 +154,10 @@ fun FilterButton(label: String, selectedFilter: String, onFilterSelected: (Strin
     androidx.compose.material3.Button(
         onClick = { onFilterSelected(label) },
         modifier = Modifier
-            .border(0.5.dp, Color.LightGray, RoundedCornerShape(12.dp))
-            .height(30.dp),
+            .border(0.5.dp, Color.LightGray, RoundedCornerShape(10.dp))
+            .height(26.dp),
         contentPadding = PaddingValues(0.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color.Gray else colorResource(id = R.color.light_buttons)
         )
@@ -300,7 +300,7 @@ fun ProductItem(product: Product, onAddStockClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .shadow(2.dp, shape = RoundedCornerShape(16.dp)),
+            .shadow(2.dp, shape = RoundedCornerShape(10.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column (
@@ -309,32 +309,42 @@ fun ProductItem(product: Product, onAddStockClick: () -> Unit) {
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.LightGray),
-                horizontalArrangement = Arrangement.Center
+                    .background(colorResource(id = R.color.topProduct))
+                    .padding(vertical = 2.dp)
+                    .padding(end = 10.dp),
+                horizontalArrangement = Arrangement.End
             ){
                 if (product.type == "Adicional"){
-                    Text("Adicional")
+                    Text("Adicional",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp
+                        )
                 }
                 else{
-                    Text("Alimento")
+                    Text("Alimento",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    )
                 }
             }
         }
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .padding(top = 12.dp)
+                .padding(vertical = 12.dp)
         ) {
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(22.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
 
                 Row {
                     Text("${product.name}", fontWeight = FontWeight.Bold)
                     Text(
-                        " - ${product.description}",
+                        "  $${product.price}",
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
                         color = Color.Gray
@@ -345,19 +355,22 @@ fun ProductItem(product: Product, onAddStockClick: () -> Unit) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Stock bajo",
-                        tint = Color.Red
+                        tint = Color.Red,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .padding(0.dp)
                     )
                 }
             }
             if (product.type == "Adicional") {
                 Spacer(modifier = Modifier.height(6.dp))
             }else{
-                Spacer(modifier = Modifier.height(26.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
             }
 
             Text(
-                "$${product.price}",
+                "${product.description}",
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
                 color = Color.Gray
@@ -376,31 +389,30 @@ fun ProductItem(product: Product, onAddStockClick: () -> Unit) {
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically, // Alinear verticalmente el ícono y el texto
-                        modifier = Modifier.padding(0.dp),
 
                         ) {
                         Text(
                             "${product.stock ?: 0}",
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(0.dp),
+                            modifier = Modifier.padding(end = 4.dp),
 
                             )
                         IconButton(
                             onClick = onAddStockClick,
-                            modifier = Modifier.size(48.dp) // O el tamaño que desees
+                            modifier = Modifier
+                                    .size(20.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AddCircle,
                                 contentDescription = "Añadir stock",
-                                tint = colorResource(id = R.color.orangeButtonAdd)
+                                tint = colorResource(id = R.color.orangeButtonAdd),
+                                modifier = Modifier.fillMaxSize() // Asegúrate de que el icono llene el botón
                             )
                         }
 
+
                     }
                 }
-            }else
-            {
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
         }
@@ -612,7 +624,7 @@ fun iconInventory(modifier: Modifier = Modifier) {
             modifier = modifier
                 .fillMaxWidth()
                 .padding(top = 30.dp)
-                .padding(bottom = 16.dp)
+                .padding(bottom = 8.dp)
                 .padding(horizontal = 30.dp),
             horizontalArrangement = Arrangement.Start
         ) {
