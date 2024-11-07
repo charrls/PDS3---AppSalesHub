@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                 val clientRepository = ClientRepository(clientDao)
                 val clientViewModel: ClientViewModel = ViewModelProvider(
                     this,
-                    ClientViewModelFactory(clientRepository)
+                    ClientViewModelFactory(clientRepository, applicationContext)
                 )[ClientViewModel::class.java]
 
                 Log.d("MainActivity", "ClientViewModel initialized: $clientViewModel")

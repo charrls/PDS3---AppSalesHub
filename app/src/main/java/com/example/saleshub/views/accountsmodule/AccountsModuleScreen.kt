@@ -28,6 +28,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.rememberDismissState
@@ -79,8 +81,8 @@ fun ViewAccountsScreenContent(
     var selectedFilter by remember { mutableStateOf("Todo") } // Estado para el filtro
 
     val filteredClients = when (selectedFilter) {
-        "Con deuda" -> clientList.filter { it.debtPayment!! > 0 }
-        "Sin deuda" -> clientList.filter { it.debtPayment!! <= 0 }
+        "Con deuda" -> clientList.filter { it.balance!! > 0 }
+        "Sin deuda" -> clientList.filter { it.balance!! <= 0 }
         else -> clientList // Por defecto, muestra todos los clientes
     }
 
@@ -169,10 +171,10 @@ fun encabezadoModuloCuentas(navController: NavController, modifier: Modifier = M
             )
         }
         Text(
-            text = "Modulo cuentas clientes",
-            fontSize = 20.sp,
+            text = "Módulo clientes",
+            fontSize = 18.sp,
             color = Color.DarkGray,
-            modifier = Modifier.padding(end = 16.dp)
+            modifier = Modifier.padding(end = 26.dp)
         )
     }
 }
@@ -268,7 +270,7 @@ fun ViewAccountsContent(
                 SwipeToDismiss(
                     state = dismissState,
                     directions = setOf(DismissDirection.EndToStart, DismissDirection.StartToEnd),
-                    background = { SwipeBackground(dismissState.dismissDirection) },
+                    background = { SwipeBackgroundC(dismissState.dismissDirection) },
                     dismissContent = {
                         ClientItem(
                             client = client,
@@ -296,7 +298,38 @@ fun ViewAccountsContent(
     }
 }
 
+@Composable
+fun SwipeBackgroundC(dismissDirection: DismissDirection?) {
+    val backgroundColor = when (dismissDirection) {
+        DismissDirection.EndToStart -> Color.Red   // Fondo rojo para eliminar
+        DismissDirection.StartToEnd -> colorResource(id = R.color.purpleButton)  // Fondo azul para editar
+        else -> Color.Transparent
+    }
 
+    val icon = when (dismissDirection) {
+        DismissDirection.EndToStart -> Icons.Default.Delete  // Icono de eliminar
+        DismissDirection.StartToEnd -> Icons.Default.Edit    // Icono de editar
+        else -> null
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 4.dp)
+            .shadow(1.dp, shape = RoundedCornerShape(16.dp))
+            .background(backgroundColor)
+            .padding(horizontal = 20.dp),
+        contentAlignment = if (dismissDirection == DismissDirection.EndToStart) Alignment.CenterEnd else Alignment.CenterStart
+    ) {
+        icon?.let {
+            androidx.compose.material.Icon(
+                imageVector = it,
+                contentDescription = if (dismissDirection == DismissDirection.EndToStart) "Eliminar producto" else "Editar producto",
+                tint = Color.White
+            )
+        }
+    }
+}
 @Composable
 fun ConfirmDeleteDialog(
     clientName: String,
@@ -312,7 +345,7 @@ fun ConfirmDeleteDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 androidx.compose.material.Text(
-                    text = "Eliminar producto",
+                    text = "Eliminar cliente",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.DarkGray
@@ -325,7 +358,7 @@ fun ConfirmDeleteDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 androidx.compose.material.Text(
-                    text = "\"$clientName : $clientDesc\" ",
+                    text = "\"$clientName - $clientDesc\" ",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = Color.DarkGray
@@ -408,7 +441,7 @@ fun ClientItem(client: Client, onAddPaymentClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .padding(vertical = 12.dp)
+                .padding(vertical = 10.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -417,9 +450,9 @@ fun ClientItem(client: Client, onAddPaymentClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row {
-                    Text("${client.name}", fontWeight = FontWeight.Bold)
+                    Text("${client.name}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
-                if (client.debtPayment!! > client.maxAmount!!) {
+                if (client.balance!! > client.maxAmount!!) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Límite de crédito superado",
@@ -437,16 +470,13 @@ fun ClientItem(client: Client, onAddPaymentClick: () -> Unit) {
                 fontSize = 14.sp,
                 color = Color.Gray
             )
-            Spacer(modifier = Modifier.height(6.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                     Text(
-                        "Saldo: $${client.debtPayment}",
+                        "Saldo: $${client.balance}",
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
                         color = Color.Gray

@@ -8,18 +8,34 @@ import com.example.saleshub.repository.ClientRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.sql.Date
+import android.content.Context
+import kotlinx.coroutines.flow.first
 
-class ClientViewModel(private val repository: ClientRepository) : ViewModel() {
 
-    private var clientName: String = ""
-    private  var clientPhoneNumber: String = ""
+class ClientViewModel(
+    private val repository: ClientRepository,
+    context: Context
+) : ViewModel() {
+
+    // Instancia de SharedPreferences para almacenar los valores globales
+    private val sharedPreferences = context.getSharedPreferences("client_preferences", Context.MODE_PRIVATE)
+
+    // Flow para los valores de monto y plazo máximos
+    var globalMaxAmount = MutableStateFlow<Double?>(null)
+    var globalMaxTerm = MutableStateFlow<Int?>(null)
 
     private val _clientListState = MutableStateFlow<List<Client>>(emptyList())
     val clientListState: StateFlow<List<Client>> = _clientListState
 
     init {
+        loadStoredMaxValues()
         getAllClients()
+    }
+
+    // Carga valores guardados de SharedPreferences
+    private fun loadStoredMaxValues() {
+        globalMaxAmount.value = sharedPreferences.getFloat("maxAmount", 0.0f).toDouble()
+        globalMaxTerm.value = sharedPreferences.getInt("maxTerm", 0)
     }
 
     private fun getAllClients() {
@@ -29,19 +45,31 @@ class ClientViewModel(private val repository: ClientRepository) : ViewModel() {
             }
         }
     }
-    fun updateClientFields(name: String, phone: String) {
-        clientName = name
-        clientPhoneNumber = phone
-
+    // En ClientViewModel
+    fun processPayment(clientId: Int, paymentAmount: Double) {
+        viewModelScope.launch {
+            // Obtener el cliente de manera reactiva usando 'first()' para obtener el primer valor
+            val client = repository.getClientById(clientId).first()  // 'first' es más adecuado si solo esperas un único cliente
+            if (client != null) {
+                // Actualizar el saldo (restar el pago al balance actual)
+                val newBalance = client.balance!! - paymentAmount
+                // Evitar que el saldo sea negativo
+                if (newBalance >= 0) {
+                    updateBalance(clientId, newBalance)  // Llamada a la función para actualizar el balance
+                }
+            }
+        }
     }
 
-    fun registerClient(name: String, num: String, balance: Double, creditMax: Double, termMax: Int) {
+
+
+    fun registerClient(name: String, num: String, balance: Double) {
         val newClient = Client(
             name = name,
             phone = num,
-            debtPayment = balance,
-            maxAmount = creditMax,
-            maxTerm = termMax,
+            balance = balance,
+            maxAmount = globalMaxAmount.value ?: 0.0,
+            maxTerm = globalMaxTerm.value ?: 0
         )
         viewModelScope.launch { repository.insertClient(newClient) }
     }
@@ -61,4 +89,20 @@ class ClientViewModel(private val repository: ClientRepository) : ViewModel() {
     fun deleteClient(clientId: Int) {
         viewModelScope.launch { repository.deleteClient(clientId) }
     }
+
+    // Actualiza y guarda los valores de monto y plazo máximo
+    fun updateAllMaxAmountAndTerm(maxAmount: Double, maxTerm: Int) {
+        viewModelScope.launch {
+            repository.updateAllMaxAmountAndTerm(maxAmount, maxTerm)
+            // Guardar en SharedPreferences
+            sharedPreferences.edit().apply {
+                putFloat("maxAmount", maxAmount.toFloat())
+                putInt("maxTerm", maxTerm)
+                apply()
+            }
+            globalMaxAmount.value = maxAmount
+            globalMaxTerm.value = maxTerm
+        }
+    }
 }
+

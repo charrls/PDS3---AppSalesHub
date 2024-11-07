@@ -200,7 +200,7 @@ fun ViewInventoryContent(
                 .padding(12.dp, 12.dp, 22.dp, 12.dp)
         ) {
             Text(
-                text = "Inventario vacío",
+                text = "No hay productos registrados",
                 fontWeight = FontWeight.Bold,
                 color = Color.Gray,
                 fontSize = 14.sp
@@ -304,15 +304,16 @@ fun ProductItem(product: Product, onAddStockClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column (
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.End
         ){
             Row (
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .width(70.dp)
                     .background(colorResource(id = R.color.topProduct))
                     .padding(vertical = 2.dp)
-                    .padding(end = 10.dp),
-                horizontalArrangement = Arrangement.End
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.Center
             ){
                 if (product.type == "Adicional"){
                     Text("Adicional",
@@ -331,7 +332,8 @@ fun ProductItem(product: Product, onAddStockClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .padding(vertical = 12.dp)
+                .padding(top = 2.dp)
+                .padding(bottom = 12.dp)
         ) {
 
             Row(
@@ -605,10 +607,10 @@ fun HeaderViewInventoryContent(navController: NavController, modifier: Modifier 
             )
         }
         Text(
-            text = "Ver inventario",
-            fontSize = 20.sp,
+            text = "Módulo inventario",
+            fontSize = 18.sp,
             color = Color.DarkGray,
-            modifier = Modifier.padding(end = 16.dp)
+            modifier = Modifier.padding(end = 26.dp)
         )
     }
 }

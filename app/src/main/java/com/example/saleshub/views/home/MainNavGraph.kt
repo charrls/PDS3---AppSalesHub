@@ -1,6 +1,7 @@
 package com.example.saleshub.views.home
 
 import DeleteInventoryScreen
+import EditClientScreen
 import EditProductScreen
 import InventoryModuleScreen
 import UpdateStockScreen
@@ -59,13 +60,20 @@ fun MainNavGraph(navController: NavHostController, productViewModel: ProductView
         //Pantallas secundarias de Modulo cuentas
 
         composable(Screen.Deadlines.route) {
-            DeadlinesScreen(navController)
+            DeadlinesScreen(navController, clientViewModel)
         }
-        composable(Screen.DeptPayment.route) {
-            DeptPaymentScreen(navController)
-        }
+
         composable(Screen.RegisterClient.route) {
             RegisterClientScreen(navController, clientViewModel)
+        }
+        composable("edit_client/{clientId}") { backStackEntry ->
+            val clientId = backStackEntry.arguments?.getString("clientId")
+            EditClientScreen(navController, clientViewModel, clientId = clientId, isFromSwipe = true)
+        }
+
+        composable("add_payment/{clientId}") {backStackEntry ->
+            val clientId = backStackEntry.arguments?.getString("clientId")
+            DeptPaymentScreen(navController, clientViewModel, clientId = clientId)
         }
 
         //Pantallas secundarios de Modulo inventario

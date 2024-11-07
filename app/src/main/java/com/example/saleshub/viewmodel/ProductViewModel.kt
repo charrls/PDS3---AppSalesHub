@@ -18,11 +18,9 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
     private var productName: String = ""
     private var productDescription: String = ""
     private var productPrice: Double = 0.0
-    private var productStock: Int? = null
+    private var productStock: Int = 0
     private var productStockmin: Int = 0
     private var productType: String = ""
-
-
 
     private val _productListState = MutableStateFlow<List<Product>>(emptyList())
     val productListState: StateFlow<List<Product>> = _productListState
@@ -42,7 +40,7 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
 
 
 
-    fun updateProductFields(name: String, description: String, price: Double, stock: Int?, stockmin: Int, type: String) {
+    fun updateProductFields(name: String, description: String, price: Double, stock: Int, stockmin: Int, type: String) {
         productName = name
         productDescription = description
         productPrice = price
@@ -106,7 +104,7 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
         productName = ""
         productDescription = ""
         productPrice = 0.0
-        productStock = null
+        productStock = 0
         productStockmin = 0
         productType = ""
     }

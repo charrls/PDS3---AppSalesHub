@@ -78,7 +78,6 @@ fun EditProductScreen(
 
     // Usar un data class para manejar el estado del formulario
     var productFormState by remember { mutableStateOf(ProductFormState()) }
-
     var showConfirmDialog by remember { mutableStateOf(false) } // Estado para mostrar el diálogo de confirmación
 
     // Estado del Snackbar
@@ -104,7 +103,6 @@ fun EditProductScreen(
             )
         }
     }
-
     // Usar Scaffold para la estructura básica
     Scaffold(
         topBar = {
@@ -129,7 +127,6 @@ fun EditProductScreen(
                     selectedProduct?.let {
                         ProductInfoCard(it)
                     }
-
                     // Formulario para editar el producto
                     EditProductForm(
                         productName = productFormState.name,
@@ -149,10 +146,8 @@ fun EditProductScreen(
                         priceError = validateProductForm(productFormState).priceError // Mensaje de error de precio
                     )
                 }
-
                 // Botón de actualizar
                 val validatedFormState = validateProductForm(productFormState)
-
                 FootUpdateButtons(
                     onUpdateClicked = {
                         if (validatedFormState.isValid && isFormChanged(productFormState, selectedProduct)) {
@@ -174,7 +169,6 @@ fun EditProductScreen(
             }
         }
     )
-
     // AlertDialog de confirmación para actualizar el producto
     if (showConfirmDialog) {
         ConfirmUpdateDialog(
@@ -187,12 +181,11 @@ fun EditProductScreen(
                             name = productFormState.name,
                             description = productFormState.description,
                             price = productFormState.price.toDoubleOrNull() ?: 0.0,
-                            stock = productFormState.stock.toIntOrNull(),
+                            stock = productFormState.stock.toIntOrNull()?: 0,
                             stockmin = productFormState.stockMin.toIntOrNull() ?: 0,
                             type = productFormState.type
                         )
                     )
-
                     // Mostrar el Snackbar al actualizar el producto
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(
@@ -208,7 +201,6 @@ fun EditProductScreen(
         )
     }
 }
-
 
 // Función para verificar si el formulario ha cambiado
 private fun isFormChanged(productFormState: ProductFormState, selectedProduct: Product?): Boolean {
@@ -249,7 +241,6 @@ fun ProductInfoCard(product: Product) {
 }
 
 // Otras funciones no cambiaron...
-
 @Composable
 fun MySnackbarHost(snackbarHostState: SnackbarHostState) {
     SnackbarHost(snackbarHostState) { snackbarData: SnackbarData ->
@@ -262,8 +253,6 @@ fun MySnackbarHost(snackbarHostState: SnackbarHostState) {
         )
     }
 }
-
-
 
 @Composable
 fun EditProductForm(
@@ -287,6 +276,7 @@ fun EditProductForm(
     Column(
         modifier = modifier.padding(horizontal = 40.dp)
     ) {
+        Spacer(modifier = Modifier.height(15.dp))
         Text(text = "Producto")
         OutlinedTextField(
             value = productName,
@@ -297,7 +287,14 @@ fun EditProductForm(
             isError = nameError != null,
             singleLine = true
         )
-        nameError?.let { Text(text = it, color = Color.Red) }
+        nameError?.let {
+            Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
+                text = it,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
         Spacer(modifier = Modifier.height(25.dp))
 
         Text(text = "Descripción")
@@ -322,7 +319,13 @@ fun EditProductForm(
                 isError = stockMinError != null,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            stockMinError?.let { Text(text = it, color = Color.Red) }
+            stockMinError?.let {
+                Text(
+                    modifier = Modifier.padding(start = 8.dp, top = 2.dp),
+                    text = it,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+            )  }
             Spacer(modifier = Modifier.height(25.dp))
         }
 
@@ -336,36 +339,42 @@ fun EditProductForm(
             isError = priceError != null,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        priceError?.let { Text(text = it, color = Color.Red) }
+        priceError?.let {
+            Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
+                text = it,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
         Spacer(modifier = Modifier.height(25.dp))
     }
 }
 
-
 private fun validateProductForm(productFormState: ProductFormState): ProductFormValidationState {
     val errorMessages = mutableListOf<String>()
     var isValid = true
-
     // Validar el nombre del producto
     val nameError = if (productFormState.name.isBlank()) {
         isValid = false
         "Campo obligatorio"
-    } else if (productFormState.name.length > 25) {
+    } else if (productFormState.name.length > 30) {
         isValid = false
-        "Maximo 25 caracteres"
+        "Maximo 30 caracteres"
     } else {
         null
     }
-
     // Validar el precio
     val price = productFormState.price.toDoubleOrNull()
-    val priceError = if (price == null || price <= 0) {
+    val priceError = if (productFormState.price.isBlank()) {
         isValid = false
-        "Dato no valido"
+        "Campo obligatorio"
+    }else if (price == null || price <= 0) {
+        isValid = false
+        "Dato no válido"
     } else {
         null
     }
-
     // Validar el stock (solo si es un tipo 'Adicional')
     val stock = productFormState.stock.toIntOrNull()
     val stockError = if (productFormState.type == "Adicional" && (stock == null || stock < 0)) {
@@ -374,16 +383,17 @@ private fun validateProductForm(productFormState: ProductFormState): ProductForm
     } else {
         null
     }
-
     // Validar el stock mínimo (solo si es un tipo 'Adicional')
     val stockMin = productFormState.stockMin.toIntOrNull()
-    val stockMinError = if (productFormState.type == "Adicional" && (stockMin == null || stockMin < 0)) {
+    val stockMinError = if (productFormState.type == "Adicional" && (productFormState.stockMin.isBlank())){
+        isValid = false
+        "Campo obligatorio"
+    } else if (productFormState.type == "Adicional" && (stockMin == null || stockMin < 0)) {
         isValid = false
         "Dato no valido"
     } else {
         null
     }
-
     return ProductFormValidationState(
         isValid = isValid,
         stockError = stockError,
@@ -393,8 +403,6 @@ private fun validateProductForm(productFormState: ProductFormState): ProductForm
         errorMessages = errorMessages
     )
 }
-
-
 
 data class ProductFormState(
     val name: String = "",
@@ -413,8 +421,6 @@ data class ProductFormValidationState(
     val priceError: String?, // Agregar este campo
     val errorMessages: List<String>
 )
-
-
 
 @Composable
 fun FootUpdateButtons(
@@ -442,9 +448,7 @@ fun FootUpdateButtons(
         ) {
             Text("Cancelar", color = Color.White)
         }
-
         Spacer(modifier = modifier.width(40.dp))
-
         Button(
             onClick = onUpdateClicked,
             enabled = isUpdateEnabled, // Deshabilitar el botón si no hay cambios
@@ -460,8 +464,6 @@ fun FootUpdateButtons(
         }
     }
 }
-
-
 
 @Composable
 fun ConfirmUpdateDialog(
@@ -497,7 +499,7 @@ fun ConfirmUpdateDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "¿Está seguro de que desea actualizar este producto?",
+                    text = "¿Desea actualizar los datos del producto?",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Light,
                     color = Color.Gray
@@ -526,7 +528,6 @@ fun ConfirmUpdateDialog(
                             color = Color.DarkGray
                         )
                     }
-
                     // Línea divisoria entre los botones
                     Box(
                         modifier = Modifier
@@ -534,7 +535,6 @@ fun ConfirmUpdateDialog(
                             .height(45.dp)
                             .background(Color.LightGray)
                     )
-
                     // Botón de "Actualizar"
                     Box(
                         modifier = Modifier

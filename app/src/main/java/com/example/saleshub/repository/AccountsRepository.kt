@@ -8,8 +8,10 @@ class ClientRepository(private val clientDao: ClientDao) {
 
     fun getAllClients(): Flow<List<Client>> = clientDao.getAllClients()
 
-    fun getClientById(id: Int): Flow<Client> = clientDao.getClientById(id)
 
+    fun getClientById(clientId: Int): Flow<Client> {
+        return clientDao.getClientById(clientId)
+    }
     suspend fun insertClient(client: Client) {
         clientDao.insertClient(client)
     }
@@ -29,4 +31,10 @@ class ClientRepository(private val clientDao: ClientDao) {
     suspend fun updateTermMax(clientId: Int, newTermMax: Int) {
         clientDao.updateTermMax(clientId, newTermMax)
     }
+
+    suspend fun updateAllMaxAmountAndTerm(maxAmount: Double, maxTerm: Int) {
+        clientDao.updateAllMaxAmountAndTerm(maxAmount, maxTerm)
+    }
+
+
 }

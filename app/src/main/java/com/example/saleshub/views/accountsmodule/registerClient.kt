@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -14,25 +15,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.saleshub.R
 import com.example.saleshub.model.Client
 import com.example.saleshub.viewmodel.ClientViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterClientScreen(
     navController: NavController,
-    accountViewModel: ClientViewModel, // Pasamos el ViewModel como parámetro
+    accountViewModel: ClientViewModel,
     modifier: Modifier = Modifier
 ) {
+    // Observa los valores globales para creditMax y termMax
+    val globalMaxAmount by accountViewModel.globalMaxAmount.collectAsState()
+    val globalMaxTerm by accountViewModel.globalMaxTerm.collectAsState()
+
     // Estados para los campos
     var clientName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var balance by remember { mutableStateOf("0.0") }
-    var creditMax by remember { mutableStateOf("0.0") }
-    var termMax by remember { mutableStateOf("0") }
+    var creditMax by remember { mutableStateOf(globalMaxAmount?.toString() ?: "0.0") }
+    var termMax by remember { mutableStateOf(globalMaxTerm?.toString() ?: "0") }
+
+    // Actualizar los valores cuando cambien los valores globales
+    LaunchedEffect(globalMaxAmount, globalMaxTerm) {
+        creditMax = globalMaxAmount?.toString() ?: "0.0"
+        termMax = globalMaxTerm?.toString() ?: "0"
+    }
 
     // Validación de formulario
     val isFormValid by remember(clientName, phoneNumber, balance, creditMax, termMax) {
@@ -44,6 +57,10 @@ fun RegisterClientScreen(
                     termMax.toIntOrNull() != null
         }
     }
+
+    // Estado para el Snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -58,68 +75,113 @@ fun RegisterClientScreen(
             RegisterClientForm(
                 clientName = clientName,
                 phoneNumber = phoneNumber,
-                balance = balance,
-                creditMax = creditMax,
-                termMax = termMax,
                 onClientNameChange = { clientName = it },
                 onPhoneNumberChange = { phoneNumber = it },
-                onBalanceChange = { balance = it },
-                onCreditMaxChange = { creditMax = it },
-                onTermMaxChange = { termMax = it }
+
             )
         }
         FootRClientBottons(
             onCancel = { navController.popBackStack() },
             onRegister = {
-                accountViewModel.registerClient(
-                    name = clientName,
-                    num = phoneNumber,
-                    balance = balance.toDouble(),
-                    creditMax = creditMax.toDouble(),
-                    termMax = termMax.toInt()
-                )
-                navController.popBackStack()
+                if (isFormValid) {
+                    accountViewModel.registerClient(
+                        name = clientName,
+                        num = phoneNumber,
+                        balance = balance.toDouble()
+                    )
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Cliente registrado con éxito",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                    navController.popBackStack()
+                }
             },
             isFormValid = isFormValid
         )
     }
 }
 
+
 @Composable
 fun RegisterClientForm(
     clientName: String,
     phoneNumber: String,
-    balance: String,
-    creditMax: String,
-    termMax: String,
+
     onClientNameChange: (String) -> Unit,
     onPhoneNumberChange: (String) -> Unit,
-    onBalanceChange: (String) -> Unit,
-    onCreditMaxChange: (String) -> Unit,
-    onTermMaxChange: (String) -> Unit,
+
     modifier: Modifier = Modifier
 ) {
+    // Validaciones de los campos
+    val clientNameError = clientName.trim().isEmpty()
+    val phoneNumberError = phoneNumber.trim().isEmpty() || !phoneNumber.matches(Regex("^[0-9]{10}$"))
+
+
+    // Validación global del formulario
+    val isFormValid = !clientNameError && !phoneNumberError
+
     Column(modifier = modifier.padding(horizontal = 40.dp, vertical = 40.dp)) {
-        Text(text = "Cliente")
+        // Nombre del cliente
+        Text("Cliente")
         OutlinedTextField(
             value = clientName,
             onValueChange = onClientNameChange,
             label = { Text("Nombre del cliente") },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
+            isError = clientNameError,
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true
         )
+        if (clientName.trim().isEmpty()) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
+                text = "Campo obligatorio",
+                color = Color.Gray, // Amarillo
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+         else if (clientName.length > 35) {
+            Text(
+                text = "Máximo 25 caracteres",
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
         Spacer(modifier = modifier.height(30.dp))
-        Text(text = "Teléfono")
+
+        // Teléfono
+        Text("Teléfono")
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = onPhoneNumberChange,
             label = { Text("Número de teléfono") },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
+            isError = phoneNumberError,
+            shape = RoundedCornerShape(8.dp),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            singleLine = true
         )
-
+        if (phoneNumber.trim().isEmpty()) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
+                text = "Campo obligatorio",
+                color = Color.Gray, // Amarillo
+                style = MaterialTheme.typography.bodySmall
+            )
+        } else if (phoneNumberError) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
+                text = "Número de teléfono no válido (10 dígitos)",
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
+
 
 @Composable
 fun FootRClientBottons(

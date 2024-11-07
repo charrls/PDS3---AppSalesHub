@@ -206,6 +206,7 @@ fun ProductForm(
             )
         } else if (productName.length > 25) {
             Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
                 text = "Máximo 25 caracteres",
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall
@@ -227,6 +228,7 @@ fun ProductForm(
         )
         if (descriptionError) {
             Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
                 text = "Máximo 40 caracteres",
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall
@@ -261,6 +263,7 @@ fun ProductForm(
                         )
                     } else if (!productStock.matches(Regex("^[0-9]+$"))) {
                         Text(
+                            modifier = Modifier.padding(start = 8.dp, top = 2.dp),
                             text = "Dato no valido",
                             color = Color.Red,
                             style = MaterialTheme.typography.bodySmall
@@ -288,6 +291,7 @@ fun ProductForm(
                         )
                     } else if (!productStockMin.matches(Regex("^[0-9]+$"))) {
                         Text(
+                            modifier = Modifier.padding(start = 8.dp, top = 2.dp),
                             text = "Dato no valido",
                             color = Color.Red,
                             style = MaterialTheme.typography.bodySmall
@@ -318,6 +322,7 @@ fun ProductForm(
             )
         } else if (!productPrice.matches(Regex("^[0-9]+(\\.[0-9]{1,2})?$")) || productPrice.toDoubleOrNull()?.let { it <= 0.0 } == true) {
             Text(
+                modifier = Modifier.padding(start = 8.dp, top = 2.dp),
                 text = "Dato no valido",
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall
@@ -330,7 +335,7 @@ fun ProductForm(
                 name = productName,
                 description = productDescription,
                 price = productPrice.toDoubleOrNull() ?: 0.0,
-                stock = if (productType == "Adicional") productStock.toIntOrNull() ?: 0 else null,
+                stock = if (productType == "Adicional") productStock.toInt() else 0,
                 stockmin = if (productStockMin.isNotEmpty()) productStockMin.toInt() else 0,
                 type = productType
             )

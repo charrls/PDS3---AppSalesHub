@@ -77,8 +77,8 @@ fun encabezadoModuloVentas(navController: NavController, modifier: Modifier = Mo
             )
         }
         Text(
-            text = "Modulo ventas",
-            fontSize = 20.sp,
+            text = "Módulo ventas",
+            fontSize = 18.sp,
             color = Color.DarkGray,
             modifier = Modifier.padding(end = 16.dp)
         )
