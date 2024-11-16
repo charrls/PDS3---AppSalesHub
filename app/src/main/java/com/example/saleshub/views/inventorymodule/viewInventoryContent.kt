@@ -127,7 +127,7 @@ fun ordenarProductos(selectedFilter: String, onFilterSelected: (String) -> Unit,
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp)
-            .padding(bottom = 12.dp)
+            .padding(vertical = 16.dp)
     ) {
         Row(
             modifier = modifier

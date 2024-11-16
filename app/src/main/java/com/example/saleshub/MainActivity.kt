@@ -15,7 +15,10 @@ import com.example.saleshub.viewmodel.ProductViewModel
 import com.example.saleshub.viewmodel.ClientViewModel
 import com.example.saleshub.viewmodel.ProductViewModelFactory
 import com.example.saleshub.viewmodel.ClientViewModelFactory
-import com.example.saleshub.views.home.MainNavGraph
+import com.example.saleshub.model.MainNavGraph
+import com.example.saleshub.repository.SalesRepository
+import com.example.saleshub.viewmodel.SalesViewModel
+import com.example.saleshub.viewmodel.SalesViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,11 +49,22 @@ class MainActivity : ComponentActivity() {
 
                 Log.d("MainActivity", "ClientViewModel initialized: $clientViewModel")
 
-                // Pasar ambos ViewModels al gráfico de navegación
+                // Configuración de SalesViewModel
+                val salesDao = AppDatabase.getDatabase(applicationContext).salesDao()
+                val salesRepository = SalesRepository(salesDao)
+                val salesViewModel: SalesViewModel = ViewModelProvider(
+                    this,
+                    SalesViewModelFactory(salesRepository)
+                )[SalesViewModel::class.java]
+
+                Log.d("MainActivity", "SalesViewModel initialized: $salesViewModel")
+
+                // Pasar todos los ViewModels al gráfico de navegación
                 MainNavGraph(
                     navController = navController,
                     productViewModel = productViewModel,
-                    clientViewModel = clientViewModel
+                    clientViewModel = clientViewModel,
+                    salesViewModel = salesViewModel
                 )
             }
         }

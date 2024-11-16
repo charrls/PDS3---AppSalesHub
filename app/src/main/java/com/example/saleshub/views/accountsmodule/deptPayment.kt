@@ -75,24 +75,31 @@ fun DeptPaymentScreen(navController: NavController, clientViewModel: ClientViewM
             HeaderPaymentClient(navController, Modifier.fillMaxWidth())
             iconDPayment()
             client?.let {
-                ClientDetails(client = it)  // Mostrar detalles del cliente
+                ClientDetails(client = it) // Mostrar detalles del cliente
             }
             PaymentForm(
                 paymentAmount = paymentAmount,
                 onPaymentAmountChange = {
+                    val newValue = it.toDoubleOrNull()
+                    if (newValue != null && client != null) {
+                        isPaymentValid = newValue > 0 && newValue <= client.balance!!
+                        showErrorMessage = !isPaymentValid
+                    } else {
+                        isPaymentValid = false
+                        showErrorMessage = true
+                    }
                     paymentAmount = it
-                    isPaymentValid = it.isNotEmpty() && it.toDoubleOrNull() != null && it.toDouble() > 0
-                    showErrorMessage = it.isEmpty() || !isPaymentValid
                 },
-                showErrorMessage = showErrorMessage
+                showErrorMessage = showErrorMessage,
+                isEnabled = client?.balance != 0.0, // Deshabilitar si la deuda es 0
+                clientBalance = client?.balance ?: 0.0 // Pasar el balance del cliente
             )
         }
         FootDPaymentBottons(
             navController,
-            paymentAmount = paymentAmount,  // Pasar paymentAmount a este componente
+            paymentAmount = paymentAmount,
             onRegisterPayment = {
                 if (isPaymentValid && clientIdInt != null) {
-                    // Procesar pago solo si el monto es válido
                     clientViewModel.processPayment(clientIdInt, paymentAmount.toDouble())
                     navController.popBackStack()
                 }
@@ -102,7 +109,13 @@ fun DeptPaymentScreen(navController: NavController, clientViewModel: ClientViewM
 }
 
 @Composable
-fun PaymentForm(paymentAmount: String, onPaymentAmountChange: (String) -> Unit, showErrorMessage: Boolean) {
+fun PaymentForm(
+    paymentAmount: String,
+    onPaymentAmountChange: (String) -> Unit,
+    showErrorMessage: Boolean,
+    isEnabled: Boolean, // Nueva propiedad para habilitar/deshabilitar el campo
+    clientBalance: Double // Nuevo argumento para el balance del cliente
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,7 +131,8 @@ fun PaymentForm(paymentAmount: String, onPaymentAmountChange: (String) -> Unit, 
             modifier = Modifier.width(150.dp),
             shape = RoundedCornerShape(8.dp),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            isError = showErrorMessage // Indica si el campo debe mostrarse con error
+            isError = showErrorMessage,
+            enabled = isEnabled // Usar la nueva propiedad para controlar si está habilitado
         )
         if (showErrorMessage) {
             Text(
@@ -126,6 +140,7 @@ fun PaymentForm(paymentAmount: String, onPaymentAmountChange: (String) -> Unit, 
                 text = when {
                     paymentAmount.isEmpty() -> "Campo obligatorio"
                     paymentAmount.toDoubleOrNull() == null || paymentAmount.toDouble() <= 0 -> "Dato no válido"
+                    paymentAmount.toDoubleOrNull() != null && paymentAmount.toDouble() > clientBalance -> "Monto supera la deuda"
                     else -> ""
                 },
                 color = Color.Red,
@@ -134,6 +149,8 @@ fun PaymentForm(paymentAmount: String, onPaymentAmountChange: (String) -> Unit, 
         }
     }
 }
+
+
 
 @Composable
 fun FootDPaymentBottons(navController: NavController, paymentAmount: String, onRegisterPayment: () -> Unit, modifier: Modifier = Modifier) {
