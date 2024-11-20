@@ -65,6 +65,7 @@ fun RegisterClientScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .systemBarsPadding()
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -193,7 +194,7 @@ fun FootRClientBottons(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 50.dp)
+            .padding(bottom = 40.dp)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
@@ -229,33 +230,38 @@ fun FootRClientBottons(
 
 @Composable
 fun HeaderRegisterClient(navController: NavController, modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
-            )
-            .padding(top = 48.dp),
-    ) {
-        IconButton(
-            onClick = { navController.popBackStack() },
+
+    Column (
+        verticalArrangement = Arrangement.SpaceBetween
+    ){
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(55.dp)
+                .background(
+                    colorResource(id = R.color.light_gris),
+                )
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(24.dp)
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.DarkGray,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Text(
+                text = "Registrar cliente",
+                fontSize = 18.sp,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(end = 22.dp)
             )
+
         }
-        Text(
-            text = "Registrar cliente",
-            fontSize = 20.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(end = 16.dp)
-        )
+        Divider(modifier = Modifier.padding(0.dp), thickness = 1.dp, color = Color.LightGray)
+
     }
 }
 

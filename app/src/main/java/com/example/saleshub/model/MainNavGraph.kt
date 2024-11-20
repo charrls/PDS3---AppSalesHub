@@ -1,9 +1,7 @@
 package com.example.saleshub.model
 
-import DeleteInventoryScreen
 import EditClientScreen
 import EditProductScreen
-import InventoryModuleScreen
 import UpdateStockScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -45,16 +43,13 @@ fun MainNavGraph(navController: NavHostController, productViewModel: ProductView
         composable(Screen.AccountsModule.route) {
             ViewAccountsScreenContent(navController, clientViewModel)
         }
-        composable(Screen.InventoryModule.route) {
-            InventoryModuleScreen(navController)
-        }
 
         //Pantallas secundarias de Modulo ventas
         composable(Screen.RegisterSale.route) {
             registerSaleScreen(navController, productViewModel, clientViewModel, salesViewModel)
         }
         composable(Screen.SalesHistory.route) {
-            SalesHistoryScreen(navController, salesViewModel)
+            SalesHistoryScreen(navController, salesViewModel, clientViewModel)
         }
 
         //Pantallas secundarias de Modulo cuentas
@@ -78,9 +73,6 @@ fun MainNavGraph(navController: NavHostController, productViewModel: ProductView
 
         //Pantallas secundarios de Modulo inventario
 
-        composable(Screen.DeleteProduct.route) {
-            DeleteInventoryScreen(navController, productViewModel)
-        }
         composable("edit_product/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")
             EditProductScreen(navController, productViewModel, productId = productId, isFromSwipe = true)

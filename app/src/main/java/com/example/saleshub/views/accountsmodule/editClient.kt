@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -103,6 +104,7 @@ fun EditClientScreen(
     }
 
     Scaffold(
+        modifier = Modifier.systemBarsPadding(),
         topBar = {
             HeaderEditClient(navController, Modifier.fillMaxWidth())
         },
@@ -113,6 +115,7 @@ fun EditClientScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .systemBarsPadding()
                     .padding(paddingValues)
                     .background(Color.White),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -426,7 +429,7 @@ fun FootUpdateButtonsClient(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 50.dp)
+            .padding(bottom = 40.dp)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
@@ -465,33 +468,37 @@ fun FootUpdateButtonsClient(
 @Composable
 fun HeaderEditClient(navController: NavController, modifier: Modifier = Modifier) {
 
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
-            )
-            .padding(top = 48.dp),
-    ) {
-        IconButton(
-            onClick = { navController.popBackStack() },
+    Column (
+        verticalArrangement = Arrangement.SpaceBetween
+    ){
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(55.dp)
+                .background(
+                    colorResource(id = R.color.light_gris),
+                )
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(24.dp)
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.DarkGray,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Text(
+                text = "Editar cliente",
+                fontSize = 18.sp,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(end = 22.dp)
             )
+
         }
-        Text(
-            text = "Editar cliente",
-            fontSize = 20.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(end = 16.dp)
-        )
+        Divider(modifier = Modifier.padding(0.dp), thickness = 1.dp, color = Color.LightGray)
+
     }
 
 }

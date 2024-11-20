@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -61,10 +62,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -104,12 +108,15 @@ fun registerSaleScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(Color.White)
+            .systemBarsPadding()
+        ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             salesHeader(navController, Modifier.fillMaxWidth())
+            Divider(modifier = Modifier.padding(0.dp), thickness = 1.dp, color = Color.LightGray)
             Spacer(modifier = Modifier.height(30.dp))
             salesIcon()
 
@@ -133,7 +140,7 @@ fun registerSaleScreen(
     // Mostrar el diálogo de confirmación cuando la bandera sea verdadera
     if (showConfirmDialog) {
         ConfirmSaleDialog(
-            clientName = "Juan Pérez",  // Puedes mostrar el nombre del cliente si es necesario
+            clientName = "Seleccionar cliente",  // Puedes mostrar el nombre del cliente si es necesario
             clients = clientList.map { it.name },
             onConfirmUpdate = { selectedClient ->
                 // Acción para confirmar la venta
@@ -143,16 +150,13 @@ fun registerSaleScreen(
                     null
                 }
 
-
-
                 salesViewModel.registerSale(
                     productos = selectedProducts.map { it.name },
                     cantidades = selectedProducts.map { 1 },
                     precioTotal = totalPrice,
-                    esFiada = if (selectedClient != "Ninguno") true else null,
+                    esFiada = if (clientId != null) true else false,
                     idCliente = clientId
                 )
-
 
                 showConfirmDialog = false
             },
@@ -190,6 +194,7 @@ fun viewProducts(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(colorResource(id = R.color.lightNavigation))
                     .padding(16.dp)
             ) {
                 Text(
@@ -303,19 +308,25 @@ fun selectProduct(productViewModel: ProductViewModel, selectedProducts: MutableL
     val alimentos = productList.filter { it.type == "Alimento" }
     val adicionales = productList.filter { it.type == "Adicional" }
 
+    // Divide adicionales en dos filas
+    val halfSize = (adicionales.size + 1) / 2
+    val topRowItems = adicionales.take(halfSize)
+    val bottomRowItems = adicionales.drop(halfSize)
+
     Column(modifier = Modifier.padding(22.dp)) {
         Text(text = "Alimentos", Modifier.padding(6.dp))
-        LazyRow {
+        LazyRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             items(alimentos.size) { index ->
                 val product = alimentos[index]
                 Card(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(4.dp)
+                        .width((LocalConfiguration.current.screenWidthDp.dp - 64.dp) / 3) // Ancho fijo para tres productos
                         .shadow(2.dp, RoundedCornerShape(12.dp))
                         .clickable {
-
                             selectedProducts.add(product)
-
                         },
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons)),
@@ -323,12 +334,27 @@ fun selectProduct(productViewModel: ProductViewModel, selectedProducts: MutableL
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .wrapContentSize(align = Alignment.Center)
+                            .padding(2.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = product.name,
-                            modifier = Modifier.padding(16.dp),
-                            color = Color.DarkGray
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(top = 2.dp),
+                            color = Color.DarkGray,
+                            textAlign = TextAlign.Center,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "$ " + product.price.toString(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(bottom = 2.dp),
+                            color = Color.DarkGray,
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -339,72 +365,112 @@ fun selectProduct(productViewModel: ProductViewModel, selectedProducts: MutableL
 
         Text(text = "Adicionales", Modifier.padding(6.dp))
 
-        val halfSize = (adicionales.size + 1) / 2  // Redondea hacia arriba para manejar listas con número impar de elementos
-        val topRowItems = adicionales.take(halfSize)
-        val bottomRowItems = adicionales.drop(halfSize)
-
         LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             item {
-                Column {
-                    // Fila superior
-                    Row {
-                        topRowItems.forEach { item ->
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Primera fila de Adicionales
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        topRowItems.forEach { product ->
                             Card(
                                 modifier = Modifier
-                                    .padding(bottom = 8.dp)
-                                    .padding(horizontal = 8.dp)
+                                    .padding(4.dp)
+                                    .width((LocalConfiguration.current.screenWidthDp.dp - 64.dp) / 3) // Ancho fijo para tres productos
                                     .shadow(2.dp, RoundedCornerShape(12.dp))
                                     .clickable {
-
-                                        selectedProducts.add(item)
-
+                                        selectedProducts.add(product)
                                     },
                                 shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons))
+                                colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons)),
                             ) {
-                                Text(
-                                    text = item.name,
-                                    modifier = Modifier.padding(16.dp),
-                                    color = Color.DarkGray
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(2.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = product.name,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(top = 4.dp),
+                                        color = Color.DarkGray,
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 14.sp
+                                    )
+                                    Text(
+                                        text = "$ " + product.price.toString(),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(bottom = 2.dp),
+                                        color = Color.DarkGray,
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
-                    // Fila inferior
-                    Row {
-                        bottomRowItems.forEach { item ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    // Segunda fila de Adicionales
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        bottomRowItems.forEach { product ->
                             Card(
                                 modifier = Modifier
-                                    .padding(bottom = 8.dp)
-                                    .padding(horizontal = 8.dp)
+                                    .padding(4.dp)
+                                    .width((LocalConfiguration.current.screenWidthDp.dp - 64.dp) / 3) // Ancho fijo para tres productos
                                     .shadow(2.dp, RoundedCornerShape(12.dp))
                                     .clickable {
-                                        // Alternamos la selección del producto
-
-                                        selectedProducts.add(item)
-
+                                        selectedProducts.add(product)
                                     },
                                 shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons))
+                                colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons)),
                             ) {
-                                Text(
-                                    text = item.name,
-                                    modifier = Modifier.padding(16.dp),
-                                    color = Color.DarkGray
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(2.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = product.name,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(top = 4.dp),
+                                        color = Color.DarkGray,
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 14.sp
+                                    )
+                                    Text(
+                                        text = "$ " + product.price.toString(),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(bottom = 2.dp),
+                                        color = Color.DarkGray,
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
     }
 }
+
 
 @Composable
 fun SalesButtons(onRegisterSale: () -> Unit, modifier: Modifier = Modifier) {
@@ -482,7 +548,10 @@ fun ConfirmSaleDialog(
                 ) {
                     Checkbox(
                         checked = isCreditSale,
-                        onCheckedChange = { isCreditSale = it }
+                        onCheckedChange = { isCreditSale = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = colorResource(id = R.color.greenButton),
+                            )
                     )
                     Text(
                         text = "Venta fiada",
@@ -494,7 +563,7 @@ fun ConfirmSaleDialog(
                 // Dropdown for selecting client if credit sale is checked
                 if (isCreditSale) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Seleccionar cliente fiado:")
+                    Text("Seleccionar cliente:")
                     Box(modifier = Modifier.fillMaxWidth()) {
                         ExposedDropdownMenuBox(
                             expanded = expanded,
@@ -591,11 +660,10 @@ fun salesHeader(navController: NavController, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
+            .height(55.dp)
             .background(
                 colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .padding(top = 48.dp),
     ) {
         IconButton(
             onClick = { navController.popBackStack() },
@@ -609,9 +677,9 @@ fun salesHeader(navController: NavController, modifier: Modifier = Modifier) {
         }
         Text(
             text = "Registrar ventas",
-            fontSize = 20.sp,
+            fontSize = 18.sp,
             color = Color.DarkGray,
-            modifier = Modifier.padding(end = 16.dp)
+            modifier = Modifier.padding(end = 22.dp)
         )
     }
 }
@@ -623,25 +691,25 @@ fun salesIcon(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        Row (
+        Row(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(start = 30.dp, end = 30.dp),
-            horizontalArrangement = Arrangement.Start)
-        {
+            horizontalArrangement = Arrangement.SpaceBetween // Cambiado a SpaceBetween
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.ventas),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(35.dp)
+                    .size(32.dp)
+                    .align(alignment = Alignment.CenterVertically) // Alinear verticalmente
             )
             Divider(
                 color = Color.Gray,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 2.dp)
                     .height(1.dp)
                     .align(alignment = Alignment.CenterVertically)
+                    .padding(end = 2.dp)
             )
 
         }

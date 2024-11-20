@@ -27,11 +27,21 @@ class ClientViewModel(
     private val _clientListState = MutableStateFlow<List<Client>>(emptyList())
     val clientListState: StateFlow<List<Client>> = _clientListState
 
+    private val _selectedClientState = MutableStateFlow<Client?>(null)
+    val selectedClientState: StateFlow<Client?> = _selectedClientState
+
     init {
         loadStoredMaxValues()
         getAllClients()
     }
-
+    fun getClientById(clientId: Int) {
+        viewModelScope.launch {
+            // Llamada reactiva al repositorio
+            repository.getClientById(clientId).collect { client ->
+                _selectedClientState.value = client // Actualizar el estado con el cliente obtenido
+            }
+        }
+    }
     // Carga valores guardados de SharedPreferences
     private fun loadStoredMaxValues() {
         globalMaxAmount.value = sharedPreferences.getFloat("maxAmount", 0.0f).toDouble()

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -67,6 +68,7 @@ import com.example.saleshub.R
 import com.example.saleshub.model.Client
 import com.example.saleshub.model.Screen
 import com.example.saleshub.viewmodel.ClientViewModel
+import com.example.saleshub.views.home.pieBotones
 import com.example.saleshub.views.inventorymodule.FilterButton
 import com.example.saleshub.views.inventorymodule.SwipeBackground
 
@@ -87,6 +89,7 @@ fun ViewAccountsScreenContent(
     }
 
     Scaffold(
+        modifier = Modifier.systemBarsPadding(),
         topBar = {
             encabezadoModuloCuentas(navController)
         },
@@ -111,6 +114,7 @@ fun ViewAccountsScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .systemBarsPadding()
                     .background(Color.White)
                     .padding(paddingValues),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -141,7 +145,7 @@ fun ViewAccountsScreenContent(
                             .padding(horizontal = 1.dp)
                     )
                 }
-                pieBotonesCuentas(navController)
+                pieBotones(navController)
             }
         }
     )
@@ -149,33 +153,43 @@ fun ViewAccountsScreenContent(
 
 @Composable
 fun encabezadoModuloCuentas(navController: NavController, modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
-            )
-            .padding(top = 48.dp),
-    ) {
-        IconButton(
-            onClick = { navController.popBackStack() },
+    Column (
+        verticalArrangement = Arrangement.SpaceBetween
+    ){
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(55.dp)
+                .background(
+                    colorResource(id = R.color.light_gris),
+                )
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(24.dp)
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.DarkGray,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Text(
+                text = "Módulo clientes",
+                fontSize = 18.sp,
+                color = Color.DarkGray,
             )
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Volver",
+                    tint = Color.DarkGray,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
-        Text(
-            text = "Módulo clientes",
-            fontSize = 18.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(end = 26.dp)
-        )
+        Divider(modifier = Modifier.padding(0.dp), thickness = 1.dp, color = Color.LightGray)
+
     }
 }
 
@@ -436,7 +450,7 @@ fun ClientItem(client: Client, onAddPaymentClick: () -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .shadow(2.dp, shape = RoundedCornerShape(10.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons))
     ) {
         Column(
             modifier = Modifier

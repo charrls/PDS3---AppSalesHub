@@ -10,6 +10,8 @@
 
     <color name="light_gris">#72F6F6F6</color>
     <color name="light_buttons">#FAFAFA</color>
+    <color name="lightNavigation">#FAFAFA</color>
+
 
     <color name="greenButton">#7ED857</color>
     <color name="grayButton">#6A6A6A</color>
@@ -22,6 +24,8 @@
     <color name="orangeAlertRegister">#FFCB7C</color>
 
     <color name="topProduct">#EDEDED</color>
+    <color name="Navigation">#F2F1F1</color>
+
 
 
 </resources>

@@ -1,5 +1,6 @@
 package com.example.saleshub.views.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -30,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
 import com.example.saleshub.model.Screen
@@ -70,8 +74,8 @@ fun Header(modifier: Modifier = Modifier) {
                 colorResource(id = R.color.light_gris),
                 shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
             )
-            .shadow(1.dp, shape = RoundedCornerShape(12.dp))
-            .padding(top = 48.dp)
+            .shadow(elevation = 1.dp, shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
+            .padding(top = 45.dp)
 
 
 
@@ -88,7 +92,7 @@ fun Header(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.store),
                 contentDescription = null,
-                modifier = Modifier.size(50.dp)
+                modifier = Modifier.size(45.dp)
             )
             Text(
                 text = "Gestor de ventas",
@@ -189,18 +193,19 @@ fun CustomButton(
 
 @Composable
 fun pieBotones(navController: NavController, modifier: Modifier = Modifier) {
-    Column (
+    // Obtener la entrada actual del back stack
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
+    Column(
         modifier = Modifier
             .fillMaxWidth()
+            .systemBarsPadding()
             .background(
                 colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
-
             )
-            .shadow(1.dp, shape = RoundedCornerShape(12.dp))
-
-    ){
+            .shadow(0.5.dp)
+    ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -208,8 +213,17 @@ fun pieBotones(navController: NavController, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             CustomPieButton(
+                text = "Inicio",
+                iconResId = R.drawable.home,
+                isSelected = currentRoute == Screen.Home.route, // Compara la ruta actual
+                onClick = {
+                    navController.navigate(Screen.Home.route)
+                }
+            )
+            CustomPieButton(
                 text = "Inventario",
                 iconResId = R.drawable.inventario,
+                isSelected = currentRoute == Screen.viewInventoryContent.route, // Compara la ruta actual
                 onClick = {
                     navController.navigate(Screen.viewInventoryContent.route)
                 }
@@ -217,6 +231,7 @@ fun pieBotones(navController: NavController, modifier: Modifier = Modifier) {
             CustomPieButton(
                 text = "Ventas",
                 iconResId = R.drawable.ventas,
+                isSelected = currentRoute == Screen.SalesModule.route, // Compara la ruta actual
                 onClick = {
                     navController.navigate(Screen.SalesModule.route)
                 }
@@ -224,45 +239,53 @@ fun pieBotones(navController: NavController, modifier: Modifier = Modifier) {
             CustomPieButton(
                 text = "Cuentas",
                 iconResId = R.drawable.cuentas,
+                isSelected = currentRoute == Screen.AccountsModule.route, // Compara la ruta actual
                 onClick = {
                     navController.navigate(Screen.AccountsModule.route)
                 }
             )
         }
     }
-
 }
 
 @Composable
 fun CustomPieButton(
     text: String,
     iconResId: Int,
+    isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.size(110.dp, 70.dp),
+        modifier = Modifier
+            .size(90.dp, 70.dp)
+            .then(modifier),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) Color.LightGray else Color.Transparent, // Fondo según el estado
+            contentColor = if (isSelected) Color.White else Color.DarkGray // Texto e ícono según el estado
+        )
+
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
                 painter = painterResource(id = iconResId),
                 contentDescription = null,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(if (isSelected) 31.dp else 28.dp)
             )
             Spacer(modifier = Modifier.height(3.dp))
             Text(
                 text = text,
                 textAlign = TextAlign.Center,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.DarkGray
+                fontSize = if (isSelected) 12.sp else 11.sp,
+                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.SemiBold
             )
         }
     }
 }
+
 
 
 

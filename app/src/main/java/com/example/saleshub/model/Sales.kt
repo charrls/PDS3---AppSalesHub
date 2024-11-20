@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
 @Entity(tableName = "sales_table")
 data class Sale(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,

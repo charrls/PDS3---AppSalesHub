@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -29,9 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saleshub.R
 import com.example.saleshub.model.Screen
-
-
-
+import com.example.saleshub.views.home.pieBotones
 
 
 @Composable
@@ -39,6 +38,7 @@ fun SalesModuleScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .systemBarsPadding()
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -46,11 +46,12 @@ fun SalesModuleScreen(navController: NavController) {
 
         Column (horizontalAlignment = Alignment.CenterHorizontally) {
             encabezadoModuloVentas(navController, Modifier.fillMaxWidth())
+            Divider(modifier = Modifier.padding(0.dp), thickness = 1.dp, color = Color.LightGray)
             Spacer(modifier = Modifier.height(30.dp))
 
             contenidoModuloVentas(navController)
         }
-        pieBotonesVentas(navController)
+        pieBotones(navController)
     }
 }
 
@@ -62,9 +63,8 @@ fun encabezadoModuloVentas(navController: NavController, modifier: Modifier = Mo
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .background( colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-            .padding(top = 48.dp),
+            .height(55.dp)
+            .background( colorResource(id = R.color.light_gris))
     ) {
         IconButton(
             onClick = { navController.popBackStack() },
@@ -79,9 +79,19 @@ fun encabezadoModuloVentas(navController: NavController, modifier: Modifier = Mo
         Text(
             text = "Módulo ventas",
             fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
             color = Color.DarkGray,
-            modifier = Modifier.padding(end = 16.dp)
         )
+        IconButton(
+            onClick = {  },
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "Volver",
+                tint = Color.DarkGray,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -103,7 +113,7 @@ fun contenidoModuloVentas(navController: NavController, modifier: Modifier = Mod
                 painter = painterResource(id = R.drawable.ventas),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(35.dp)
+                    .size(32.dp)
             )
             Divider(
                 color = Color.Gray,

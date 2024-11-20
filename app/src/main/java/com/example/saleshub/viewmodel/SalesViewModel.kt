@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class SalesViewModel(private val repository: SalesRepository) : ViewModel() {
+class SalesViewModel(private val repository: SalesRepository, private val clientViewModel: ClientViewModel // Agregado
+) : ViewModel() {
 
     private val _salesListState = MutableStateFlow<List<Sale>>(emptyList())
     val salesListState: StateFlow<List<Sale>> = _salesListState
@@ -50,12 +51,26 @@ class SalesViewModel(private val repository: SalesRepository) : ViewModel() {
 
         viewModelScope.launch {
             repository.insertSale(nuevaVenta)
+
+            // Si la venta es fiada, actualizar el balance del cliente
+            if (esFiadaFinal && idCliente != null) {
+                updateClientBalance(idCliente, precioTotal)
+            }
         }
+    }
+
+    private suspend fun updateClientBalance(clientId: Int, amount: Double) {
+        // Llama al método de ClientViewModel para actualizar el balance
+        val currentBalance = clientViewModel.clientListState.value
+            .find { it.id == clientId }?.balance ?: 0.0
+        val updatedBalance = currentBalance + amount
+
+        clientViewModel.updateBalance(clientId, updatedBalance)
     }
 
     fun filterSalesByDate(period: String) {
         val filteredSales = when (period) {
-            "Día" -> _salesListState.value.filter { isSameDay(it.fecha) }
+            "Hoy" -> _salesListState.value.filter { isSameDay(it.fecha) }
             "Semana" -> _salesListState.value.filter { isSameWeek(it.fecha) }
             "Quincena" -> _salesListState.value.filter { isSameBiweek(it.fecha) }
             else -> _salesListState.value

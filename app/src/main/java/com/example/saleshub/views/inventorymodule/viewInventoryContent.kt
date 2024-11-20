@@ -43,6 +43,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.AddCircle
+import com.example.saleshub.views.home.pieBotones
 
 @Composable
 fun ViewInventoryScreenContent(
@@ -60,8 +61,11 @@ fun ViewInventoryScreenContent(
     }
 
     Scaffold(
+        modifier = Modifier.systemBarsPadding()
+        ,
         topBar = {
             HeaderViewInventoryContent(navController)
+
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -84,6 +88,7 @@ fun ViewInventoryScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .systemBarsPadding()
                     .background(Color.White)
                     .padding(paddingValues),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -114,7 +119,7 @@ fun ViewInventoryScreenContent(
                             .padding(horizontal = 1.dp)
                     )
                 }
-                pieBotonesInventario(navController)
+                pieBotones(navController)
             }
         }
     )
@@ -127,7 +132,7 @@ fun ordenarProductos(selectedFilter: String, onFilterSelected: (String) -> Unit,
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp)
-            .padding(vertical = 16.dp)
+            .padding(bottom = 16.dp)
     ) {
         Row(
             modifier = modifier
@@ -297,11 +302,11 @@ fun SwipeBackground(dismissDirection: DismissDirection?) {
 @Composable
 fun ProductItem(product: Product, onAddStockClick: () -> Unit) {
     Card(
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.light_buttons)),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .shadow(2.dp, shape = RoundedCornerShape(10.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column (
             modifier = Modifier.fillMaxWidth(),
@@ -587,32 +592,45 @@ fun CustomPieButtonInventario(
 
 @Composable
 fun HeaderViewInventoryContent(navController: NavController, modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
+    Column (
+        verticalArrangement = Arrangement.SpaceBetween
+    ){
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(55.dp)
+                .background(
+                    colorResource(id = R.color.light_gris),
+                )
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.DarkGray,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Text(
+                text = "Módulo inventario",
+                fontSize = 18.sp,
+                color = Color.DarkGray,
             )
-            .padding(top = 48.dp),
-    ) {
-        IconButton(onClick = { navController.popBackStack() }) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(24.dp)
-            )
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Volver",
+                    tint = Color.DarkGray,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
-        Text(
-            text = "Módulo inventario",
-            fontSize = 18.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(end = 26.dp)
-        )
+        Divider(modifier = Modifier.padding(0.dp), thickness = 1.dp, color = Color.LightGray)
+
     }
+
 }
 
 @Composable
