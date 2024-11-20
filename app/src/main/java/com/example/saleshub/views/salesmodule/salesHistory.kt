@@ -207,17 +207,11 @@ fun ViewHistory(sales: List<Sale>, clientViewModel: ClientViewModel) {
     }
 }
 
-
-
-
-
 // Función para formatear la fecha en un formato legible
 fun formatDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) // Añadido HH:mm para hora y minutos
     return sdf.format(Date(timestamp))
 }
-
-
 
 @Composable
 fun TotalSales(sales: List<Sale>, modifier: Modifier = Modifier) {
@@ -242,6 +236,65 @@ fun TotalSales(sales: List<Sale>, modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Bold,
             color = Color.DarkGray
         )
+    }
+}
+
+
+
+
+@Composable
+fun ordenarProductosSale(selectedFilter: String, onFilterSelected: (String) -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.Start,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp)
+            .padding(bottom = 12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Botón "Todo"
+            FilterButton("Hoy", selectedFilter, onFilterSelected)
+            Spacer(modifier = Modifier.width(8.dp))
+            // Botón "Adicional"
+            FilterButton("Semana", selectedFilter, onFilterSelected)
+            Spacer(modifier = Modifier.width(8.dp))
+            // Botón "Alimento"
+            FilterButton("Quincena", selectedFilter, onFilterSelected)
+        }
+    }
+}
+
+@Composable
+fun FilterButton(label: String, selectedFilter: String, onFilterSelected: (String) -> Unit) {
+    val isSelected = selectedFilter == label
+
+    androidx.compose.material3.Button(
+        onClick = { onFilterSelected(label) },
+        modifier = Modifier
+            .border(0.5.dp, Color.LightGray, RoundedCornerShape(10.dp))
+            .height(26.dp),
+        contentPadding = PaddingValues(0.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) Color.Gray else colorResource(id = R.color.light_buttons)
+        )
+    ) {
+        Column (
+            modifier = Modifier.padding(horizontal = 10.dp)
+        ) {
+            androidx.compose.material.Text(
+                text = label,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = if (isSelected) Color.White else Color.DarkGray
+            )
+        }
+
     }
 }
 
@@ -310,62 +363,3 @@ fun salesIconH(modifier: Modifier = Modifier) {
         }
     }
 }
-
-
-
-@Composable
-fun ordenarProductosSale(selectedFilter: String, onFilterSelected: (String) -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.Start,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp)
-            .padding(bottom = 12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Botón "Todo"
-            FilterButton("Hoy", selectedFilter, onFilterSelected)
-            Spacer(modifier = Modifier.width(8.dp))
-            // Botón "Adicional"
-            FilterButton("Semana", selectedFilter, onFilterSelected)
-            Spacer(modifier = Modifier.width(8.dp))
-            // Botón "Alimento"
-            FilterButton("Quincena", selectedFilter, onFilterSelected)
-        }
-    }
-}
-
-@Composable
-fun FilterButton(label: String, selectedFilter: String, onFilterSelected: (String) -> Unit) {
-    val isSelected = selectedFilter == label
-
-    androidx.compose.material3.Button(
-        onClick = { onFilterSelected(label) },
-        modifier = Modifier
-            .border(0.5.dp, Color.LightGray, RoundedCornerShape(10.dp))
-            .height(26.dp),
-        contentPadding = PaddingValues(0.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) Color.Gray else colorResource(id = R.color.light_buttons)
-        )
-    ) {
-        Column (
-            modifier = Modifier.padding(horizontal = 10.dp)
-        ) {
-            androidx.compose.material.Text(
-                text = label,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                color = if (isSelected) Color.White else Color.DarkGray
-            )
-        }
-
-    }
-}
-

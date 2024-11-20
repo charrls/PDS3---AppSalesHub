@@ -1,5 +1,6 @@
 package com.example.saleshub.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.saleshub.model.Sale
@@ -78,6 +79,7 @@ class SalesViewModel(private val repository: SalesRepository, private val client
         _filteredSalesListState.value = filteredSales
     }
 
+
     private fun isSameDay(dateMillis: Long): Boolean {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = System.currentTimeMillis()
@@ -89,26 +91,31 @@ class SalesViewModel(private val repository: SalesRepository, private val client
         return today == saleDay
     }
 
+
     private fun isSameWeek(dateMillis: Long): Boolean {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = System.currentTimeMillis()
-        val thisWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+        val today = calendar.timeInMillis
 
-        calendar.timeInMillis = dateMillis
-        val saleWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+        // Calcula la fecha de hace 7 días
+        calendar.add(Calendar.DAY_OF_YEAR, -7)
+        val weekStart = calendar.timeInMillis
 
-        return thisWeek == saleWeek
+        return dateMillis >= weekStart && dateMillis <= today
     }
+
 
     private fun isSameBiweek(dateMillis: Long): Boolean {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = System.currentTimeMillis()
-        val dayOfYear = calendar.get(Calendar.DAY_OF_YEAR)
-        val biweekStart = if (dayOfYear <= 15) 1 else 16
+        val today = calendar.timeInMillis
 
-        calendar.timeInMillis = dateMillis
-        val saleDayOfYear = calendar.get(Calendar.DAY_OF_YEAR)
+        // Calcula la fecha de hace 15 días
+        calendar.add(Calendar.DAY_OF_YEAR, -15)
+        val biweekStart = calendar.timeInMillis
 
-        return saleDayOfYear in biweekStart..(biweekStart + 14)
+        return dateMillis >= biweekStart && dateMillis <= today
     }
+
+
 }

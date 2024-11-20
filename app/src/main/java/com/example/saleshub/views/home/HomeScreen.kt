@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,13 +18,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -45,36 +54,53 @@ fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+            .background(Color.White)
     ) {
+        // HeaderContent ocupa un 35% de la pantalla
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.4f), // 35% de la pantalla
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            Header(Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(60.dp))
-            negocio(Modifier.padding(16.dp))
-            Spacer(modifier = Modifier.height(70.dp))
-            accesoRapido(navController)
+            HeaderContent(navController, Modifier.fillMaxWidth())
         }
+
+        // Content ocupa el resto (65% de la pantalla)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.6f), // 65% de la pantalla
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Content(navController)
+        }
+
+        // pieBotones al final
         pieBotones(navController)
     }
 }
 
 
 
+
 @Composable
-fun Header(modifier: Modifier = Modifier) {
+fun HeaderContent(navController: NavController, modifier: Modifier = Modifier) {
 
     Column (
         modifier = Modifier
+            .fillMaxHeight()
             .fillMaxWidth()
             .background(
-                colorResource(id = R.color.light_gris),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
+                colorResource(id = R.color.lightNavigation),
+                shape = RoundedCornerShape(bottomStart = 22.dp, bottomEnd = 22.dp)
             )
-            .shadow(elevation = 1.dp, shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
+            .shadow(
+                elevation = 1.dp,
+                shape = RoundedCornerShape(bottomStart = 22.dp, bottomEnd = 22.dp)
+            )
             .padding(top = 45.dp)
 
 
@@ -94,101 +120,383 @@ fun Header(modifier: Modifier = Modifier) {
                 contentDescription = null,
                 modifier = Modifier.size(45.dp)
             )
+            Column (
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "Gestor de ventas",
+                    fontSize = 20.sp,
+                    color = Color.DarkGray,
+                    modifier = Modifier.padding(end = 10.dp)
+                )
+                Text(
+                    text = "Tiendita unison",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(end = 10.dp)
+
+                )
+            }
+        }
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
             Text(
-                text = "Gestor de ventas",
-                fontSize = 20.sp,
+                text = "HOY",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
                 color = Color.DarkGray,
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(end = 10.dp)
             )
+            Spacer(modifier = Modifier.height(14.dp))
+            Text(
+                text = "$ 0.0",
+                fontSize = 24.sp,
+                color = Color.DarkGray,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = 10.dp)
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "En 0 ventas completadas",
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = 10.dp)
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Button(
+                onClick = { navController.navigate(Screen.RegisterSale.route) }, // Trigger the confirmation dialog
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.greenButton)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 25.dp)
+                    .border(0.dp, Color.Transparent, RoundedCornerShape(10.dp)),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("Registrar venta", color = Color.White, fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
+
+}
+
+
+
+@Composable
+fun Content(navController: NavController, modifier: Modifier = Modifier) {
+    Spacer(modifier = Modifier.height(50.dp))
+    Column (
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
+                .padding(horizontal = 20.dp)
+                .border(
+                    BorderStroke(1.dp, colorResource(id = R.color.topProduct)),
+                    shape = RoundedCornerShape(10.dp)
+                ),
+        ) {
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .padding(horizontal = 10.dp)
+                ,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                Text(text = "Stock", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Stock bajo",
+                    tint = Color.Red,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(0.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(40.dp)) // Aquí defines el redondeo
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(colorResource(id = R.color.lightNavigation))
+                    .padding(10.dp)
+
+                ,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Usa el mismo ancho para cada elemento
+                val commonModifier = Modifier.weight(1f)
+
+                Text(
+                    text = "Productos agotados",
+                    fontSize = 14.sp,
+                    color = Color.DarkGray,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = commonModifier,
+                    textAlign = TextAlign.Center
+                )
+
+                ProductCardInfo(
+                    producto = "Producto 1",
+                    descripcion = "Desc",
+                    stock = 0,
+                    onClick = {
+                        navController.navigate(Screen.viewInventoryContent.route)
+                    },
+                    modifier = commonModifier
+                )
+                ProductCardInfo(
+                    producto = "Producto 2",
+                    descripcion = "Desc",
+                    stock = 0,
+                    onClick = {
+                        navController.navigate(Screen.viewInventoryContent.route)
+                    },
+                    modifier = commonModifier
+                )
+                ProductCardInfo(
+                    producto = "Producto 3",
+                    descripcion = "Desc",
+                    stock = 0,
+                    onClick = {
+                        navController.navigate(Screen.viewInventoryContent.route)
+                    },
+                    modifier = commonModifier
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
+                .padding(horizontal = 20.dp)
+                .border(
+                    BorderStroke(1.dp, colorResource(id = R.color.topProduct)),
+                    shape = RoundedCornerShape(10.dp)
+                ),
+        ) {
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .padding(horizontal = 10.dp)
+                ,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                Text(text = "Clientes", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Stock bajo",
+                    tint = Color.Red,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(0.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(40.dp)) // Aquí defines el redondeo
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(colorResource(id = R.color.lightNavigation))
+                    .padding(10.dp)
+
+                ,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Usa el mismo ancho para cada elemento
+                val commonModifier = Modifier.weight(1f)
+
+                Text(
+                    text = "Clientes a pagar",
+                    fontSize = 14.sp,
+                    color = Color.DarkGray,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = commonModifier,
+                    textAlign = TextAlign.Center
+                )
+
+                ClientCardInfo(
+                    nombre = "Cliente 1",
+                    telefono = "Telefono",
+                    balance = 99.0,
+                    onClick = {
+                        navController.navigate(Screen.AccountsModule.route)
+                    },
+                    modifier = commonModifier
+                )
+                ClientCardInfo(
+                    nombre = "Cliente 2",
+                    telefono = "Telefono",
+                    balance = 99.0,
+                    onClick = {
+                        navController.navigate(Screen.AccountsModule.route)
+                    },
+                    modifier = commonModifier
+                )
+                ClientCardInfo(
+                    nombre = "Cliente 3",
+                    telefono = "Telefono",
+                    balance = 99.0,
+                    onClick = {
+                        navController.navigate(Screen.AccountsModule.route)
+                    },
+                    modifier = commonModifier
+                )
+            }
         }
     }
 
 }
 
 @Composable
-fun negocio(modifier: Modifier = Modifier) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
-        modifier = modifier
-            .border(0.5.dp, Color.Gray, RoundedCornerShape(10.dp))
-            .padding(16.dp)
-            .width(280.dp)
-            .height(70.dp)
-    ) {
-        Text(text = "Nombre del negocio", fontSize = 12.sp)
-        Text(text = "Nombre del dueño", fontSize = 12.sp)
-    }
-}
-
-@Composable
-fun accesoRapido(navController: NavController, modifier: Modifier = Modifier) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxWidth()
-
-    ) {
-        Row (   modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 28.dp),
-            horizontalArrangement = Arrangement.Start){
-            Text(text = "Acceso rápido", fontSize = 12.sp)
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            CustomButton(
-                text = "Ver inventario",
-                onClick = {
-                    navController.navigate(Screen.viewInventoryContent.route)
-                }
-            )
-            CustomButton(
-                text = "Registrar ventas",
-                onClick = {
-                    navController.navigate(Screen.RegisterSale.route)
-                }
-            )
-            CustomButton(
-                text = "Pago de deuda",
-                onClick = {
-                    navController.navigate(Screen.DeptPayment.route)
-                }
-            )
-        }
-    }
-}
-
-
-@Composable
-fun CustomButton(
-    text: String,
+fun ProductCardInfo(
+    producto: String,
+    descripcion: String,
+    stock: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Button(
-        onClick = onClick,
+    Card(
         modifier = modifier
-            .size(104.dp, 80.dp)
-            .shadow(3.dp, RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.light_buttons))
+            .fillMaxWidth() // Asegura que tome todo el ancho proporcionado por el `weight`
+            .aspectRatio(1f), // Hace que el ancho y alto sean iguales (cuadrado)
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, colorResource(id = R.color.topProduct)),
+        onClick = onClick
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxSize()
+                .padding(8.dp),
+
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceAround,
         ) {
             Text(
-                text = text,
+                text = producto,
                 textAlign = TextAlign.Center,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
                 color = Color.DarkGray
             )
+            Text(
+                text = descripcion,
+                textAlign = TextAlign.Center,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.DarkGray
+            )
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text ="Stock: ",
+                    textAlign = TextAlign.Center,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.DarkGray
+                )
+                Text(
+                    text =stock.toString(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.DarkGray
+                )
+            }
+
         }
     }
 }
+
+@Composable
+fun ClientCardInfo(
+    nombre: String,
+    telefono: String,
+    balance: Double,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth() // Asegura que tome todo el ancho proporcionado por el `weight`
+            .aspectRatio(1f), // Hace que el ancho y alto sean iguales (cuadrado)
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, colorResource(id = R.color.topProduct)),
+        onClick = onClick
+    ) {
+        Column(
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxSize()
+                .padding(8.dp),
+
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceAround,
+        ) {
+            Text(
+                text = nombre,
+                textAlign = TextAlign.Center,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.DarkGray
+            )
+            Text(
+                text = telefono,
+                textAlign = TextAlign.Center,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.DarkGray
+            )
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text ="$ " + balance.toString(),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.DarkGray,
+                    textAlign = TextAlign.Center,
+
+                )
+            }
+
+        }
+    }
+}
+
+
+
 
 
 @Composable
@@ -221,19 +529,19 @@ fun pieBotones(navController: NavController, modifier: Modifier = Modifier) {
                 }
             )
             CustomPieButton(
-                text = "Inventario",
-                iconResId = R.drawable.inventario,
-                isSelected = currentRoute == Screen.viewInventoryContent.route, // Compara la ruta actual
-                onClick = {
-                    navController.navigate(Screen.viewInventoryContent.route)
-                }
-            )
-            CustomPieButton(
                 text = "Ventas",
                 iconResId = R.drawable.ventas,
                 isSelected = currentRoute == Screen.SalesModule.route, // Compara la ruta actual
                 onClick = {
                     navController.navigate(Screen.SalesModule.route)
+                }
+            )
+            CustomPieButton(
+                text = "Inventario",
+                iconResId = R.drawable.inventario,
+                isSelected = currentRoute == Screen.viewInventoryContent.route, // Compara la ruta actual
+                onClick = {
+                    navController.navigate(Screen.viewInventoryContent.route)
                 }
             )
             CustomPieButton(
